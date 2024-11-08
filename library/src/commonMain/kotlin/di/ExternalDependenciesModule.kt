@@ -1,44 +1,21 @@
-package com.bazaartech.core_network.di
-
 import com.bazaartech.core_network.api.BaseUrls
 import com.bazaartech.core_network.api.CertTransparencyFlagProvider
 import com.bazaartech.core_network.api.NetworkApiExceptionLogger
 import com.bazaartech.core_network.api.NetworkEventLogger
 import com.bazaartech.core_network.api.NetworkExternalDependencies
 import com.bazaartech.core_network.api.SessionManager
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import org.koin.core.module.Module
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-class ExternalDependenciesModule {
+val ExternalDependenciesModule: Module = module {
 
-    @Singleton
-    @Provides
-    internal fun provideBaseUrls(dependencies: NetworkExternalDependencies): BaseUrls =
-        dependencies.getBaseUrls()
+    single<BaseUrls> { get<NetworkExternalDependencies>().getBaseUrls() }
 
-    @Provides
-    internal fun provideSessionManager(dependencies: NetworkExternalDependencies): SessionManager =
-        dependencies.getSessionManager()
+    factory<SessionManager> { get<NetworkExternalDependencies>().getSessionManager() }
 
-    @Singleton
-    @Provides
-    internal fun provideNetworkEventLogger(dependencies: NetworkExternalDependencies): NetworkEventLogger =
-        dependencies.getNetworkEventLogger()
+    single<NetworkEventLogger> { get<NetworkExternalDependencies>().getNetworkEventLogger() }
 
-    @Singleton
-    @Provides
-    internal fun provideNetworkExceptionLogger(dependencies: NetworkExternalDependencies): NetworkApiExceptionLogger =
-        dependencies.getNetworkExceptionLogger()
+    single<NetworkApiExceptionLogger> { get<NetworkExternalDependencies>().getNetworkExceptionLogger() }
 
-    @Singleton
-    @Provides
-    internal fun supplyCertTransparencyFlagProvider(
-        dependencies: NetworkExternalDependencies
-    ): CertTransparencyFlagProvider =
-        dependencies.getCertTransparencyFlagProvider()
+    single<CertTransparencyFlagProvider> { get<NetworkExternalDependencies>().getCertTransparencyFlagProvider() }
 }

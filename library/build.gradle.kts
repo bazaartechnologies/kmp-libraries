@@ -35,7 +35,6 @@ kotlin {
             implementation(libs.bundles.ktor)
             implementation(libs.koin.core)
             implementation(libs.koin.annotation)
-            ksp(libs.koin.ksp.compiler)
         }
 
         // Required by KMM-ViewModel
@@ -50,6 +49,10 @@ kotlin {
             }
         }
     }
+}
+
+dependencies {
+    add("ksp", libs.koin.ksp.compiler)
 }
 
 android {

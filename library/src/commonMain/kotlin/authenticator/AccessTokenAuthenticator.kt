@@ -11,96 +11,98 @@ import com.bazaartech.core_network.token.TokenRefreshService
 import com.bazaartech.core_network.utils.Result
 import com.bazaartech.core_network.utils.data
 import com.bazaartech.core_network.utils.safeApiCall
-import kotlinx.coroutines.runBlocking
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import okhttp3.Authenticator
-import okhttp3.Request
-import okhttp3.Response
-import okhttp3.ResponseBody
-import okhttp3.Route
-import org.json.JSONObject
-import retrofit2.HttpException
-import javax.inject.Inject
-import javax.inject.Singleton
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import org.koin.core.annotation.Single
 
-@Singleton
-internal class AccessTokenAuthenticator @Inject constructor(
+
+@Single
+internal class AccessTokenAuthenticator(
     private val tokenRefreshService: TokenRefreshService,
     private val sessionManager: SessionManager,
-    private val eventsHelper: EventsHelper
-) : Authenticator {
+    private val eventsHelper: EventsHelper,
+    private val httpClient: HttpClient
+) {
 
     private val mutex = Mutex()
 
-    override fun authenticate(route: Route?, response: Response): Request? {
+    suspend fun authenticate(requestBuilder: HttpRequestBuilder) {
         val authToken = sessionManager.getAuthToken()
 
-        if (!isRequestWithAccessToken(response)) {
-            return null
+        if (!isRequestWithAccessToken(requestBuilder)) {
+            return
         }
 
-        return runBlocking {
-            mutex.withLock {
-                val newAuthToken = sessionManager.getAuthToken()
+        mutex.withLock {
+            val newAuthToken = sessionManager.getAuthToken()
 
-                // Access token is refreshed in another thread.
-                if (authToken != newAuthToken) {
-                    return@runBlocking newRequestWithAccessToken(response.request, newAuthToken)
-                }
-
-                // Need to refresh an access token
-                val tokenRequest =
-                    RefreshTokenRequest(
-                        sessionManager.getUsername(),
-                        sessionManager.getRefreshToken()
-                    )
-
-                repeat(3) {
-                    val tokenResponse = safeApiCall {
-                        tokenRefreshService.renewAccessToken(tokenRequest)
-                    }
-
-                    when (tokenResponse) {
-                        is Result.Success -> {
-                            return@runBlocking handleSuccess(tokenResponse, response)
-                        }
-
-                        is Result.Error -> {
-                            val exception = tokenResponse.exception
-                            if (exception is HttpException) {
-                                val errorBody = exception.response()?.errorBody()
-
-                                val errorCode = getErrorCode(errorBody)
-                                val responseCode = exception.response()?.code() ?: 0
-
-                                if (responseCode == 403 ||
-                                    errorCode == REFRESH_TOKEN_EXPIRED_CODE ||
-                                    errorCode == USER_SESSION_NOT_FOUND_CODE
-                                ) {
-                                    eventsHelper.logEvent(
-                                        EventsNames.EVENT_REFRESH_TOKEN_NOT_VALID,
-                                        eventsHelper.getEventProperties(responseCode, errorCode)
-                                    )
-                                    sessionManager.onTokenExpires()
-                                    return@runBlocking null
-                                }
-                            }
-
-                            logErrorEvent(exception)
-                        }
-                        else -> {}
-                    }
-                }
-
-                eventsHelper.logEvent(EventsNames.EVENT_REFRESHING_AUTH_TOKEN_FAILED)
-                return@runBlocking null
+            // Access token is refreshed in another thread.
+            if (authToken != newAuthToken) {
+                newRequestWithAccessToken(requestBuilder, newAuthToken)
+                return
             }
+
+            // Need to refresh an access token
+            val tokenRequest =
+                RefreshTokenRequest(
+                    sessionManager.getUsername(),
+                    sessionManager.getRefreshToken()
+                )
+
+            repeat(3) {
+                val tokenResponse = safeApiCall {
+                    tokenRefreshService.renewAccessToken(tokenRequest)
+                }
+
+                when (tokenResponse) {
+                    is Result.Success -> {
+                        handleSuccess(tokenResponse, requestBuilder)
+                        return
+                    }
+
+                    is Result.Error -> {
+                        val exception = tokenResponse.exception
+                        if (exception is ResponseException) {
+                            val response = exception.response
+                            val errorBody = response.bodyAsText()
+
+                            val errorCode = getErrorCode(errorBody)
+                            val responseCode = response.status.value
+
+                            if (responseCode == 403 ||
+                                errorCode == REFRESH_TOKEN_EXPIRED_CODE ||
+                                errorCode == USER_SESSION_NOT_FOUND_CODE
+                            ) {
+                                eventsHelper.logEvent(
+                                    EventsNames.EVENT_REFRESH_TOKEN_NOT_VALID,
+                                    eventsHelper.getEventProperties(responseCode, errorCode)
+                                )
+                                sessionManager.onTokenExpires()
+                                return
+                            }
+                        }
+
+                        logErrorEvent(exception)
+                    }
+                    else -> {}
+                }
+            }
+
+            eventsHelper.logEvent(EventsNames.EVENT_REFRESHING_AUTH_TOKEN_FAILED)
         }
     }
 
     private fun logErrorEvent(throwable: Throwable?) {
-        val msg = "${throwable?.javaClass?.simpleName}  ${throwable?.message}"
+        val msg = "${throwable?.let { it::class.simpleName }} ${throwable?.message}"
 
         eventsHelper.logEvent(
             EventsNames.EVENT_REFRESH_TOKEN_API_IO_FAILURE,
@@ -108,10 +110,11 @@ internal class AccessTokenAuthenticator @Inject constructor(
         )
     }
 
-    private fun getErrorCode(errorBody: ResponseBody?): Int {
+
+    private fun getErrorCode(errorBody: String): Int {
         return try {
-            val rawBody = errorBody?.string()
-            JSONObject(rawBody).getInt("code")
+            val json = Json.parseToJsonElement(errorBody).jsonObject
+            json["code"]?.jsonPrimitive?.int ?: 0
         } catch (exception: Exception) {
             0
         }
@@ -119,8 +122,8 @@ internal class AccessTokenAuthenticator @Inject constructor(
 
     private fun handleSuccess(
         tokenResponse: Result<RefreshTokenResponse>,
-        response: Response
-    ): Request {
+        requestBuilder: HttpRequestBuilder
+    ) {
         tokenResponse.data?.let {
             sessionManager.onTokenRefreshed(
                 it.token,
@@ -129,21 +132,19 @@ internal class AccessTokenAuthenticator @Inject constructor(
             )
         }
 
-        return newRequestWithAccessToken(
-            response.request,
+        newRequestWithAccessToken(
+            requestBuilder,
             tokenResponse.data?.token ?: EMPTY_STRING
         )
     }
 
-    private fun isRequestWithAccessToken(response: Response): Boolean {
-        val header = response.request.header(AUTHORIZATION_HEADER)
+    private fun isRequestWithAccessToken(requestBuilder: HttpRequestBuilder): Boolean {
+        val header = requestBuilder.headers[AUTHORIZATION_HEADER]
         return header != null && header.startsWith(PREFIX_AUTH_TOKEN)
     }
 
-    private fun newRequestWithAccessToken(request: Request, accessToken: String): Request {
-        return request.newBuilder()
-            .header(AUTHORIZATION_HEADER, PREFIX_AUTH_TOKEN + accessToken)
-            .build()
+    private fun newRequestWithAccessToken(requestBuilder: HttpRequestBuilder, accessToken: String) {
+        requestBuilder.header(AUTHORIZATION_HEADER, PREFIX_AUTH_TOKEN + accessToken)
     }
 
     companion object {

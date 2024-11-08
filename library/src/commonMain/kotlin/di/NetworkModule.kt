@@ -1,27 +1,21 @@
 import com.bazaartech.core_network.api.BaseUrls
 import com.bazaartech.core_network.api.CertTransparencyFlagProvider
 import com.bazaartech.core_network.api.SessionManager
+import com.bazaartech.core_network.authenticator.AccessTokenAuthenticator
 import com.bazaartech.core_network.interceptor.HeadersInterceptor
 import com.bazaartech.core_network.token.AuthTokenProvider
 import com.bazaartech.core_network.token.TokenRefreshService
-import com.bazaartech.core_network.utils.AppVersionDetailsProvider
 import io.ktor.client.*
 import io.ktor.client.plugins.DefaultRequest
-import io.ktor.client.plugins.HttpSend
-import io.ktor.client.request.*
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.api.createClientPlugin
-import io.ktor.client.plugins.cache.HttpCache
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.plugins.logging.SIMPLE
-import io.ktor.http.ContentDisposition.Companion.File
+import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -29,6 +23,8 @@ import org.koin.dsl.module
 val networkModule = module {
 
     single {
+        val accessTokenAuthenticator = get<AccessTokenAuthenticator>() //todo add in interceptor
+
         HttpClient {
 
             install(ContentNegotiation) {
