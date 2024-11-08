@@ -1,14 +1,14 @@
 package com.bazaartech.core_network.token
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 internal data class RefreshTokenResponse(
-    @Json(name = "token")
+    @SerialName("token")
     val token: String,
-    @Json(name = "refreshToken")
+    @SerialName("refreshToken")
     val refreshToken: String,
-    @Json(name = "expiresAt")
+    @SerialName("expiresAt")
     val expiresAt: String = ""
 )

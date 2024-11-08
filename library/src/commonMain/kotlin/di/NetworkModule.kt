@@ -5,11 +5,13 @@ import com.bazaartech.core_network.authenticator.AccessTokenAuthenticator
 import com.bazaartech.core_network.interceptor.HeadersInterceptor
 import com.bazaartech.core_network.token.AuthTokenProvider
 import com.bazaartech.core_network.token.TokenRefreshService
+import com.bazaartech.core_network.token.TokenRefreshServiceImpl
 import io.ktor.client.*
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
@@ -81,19 +83,24 @@ val networkModule = module {
         HeadersInterceptor(get(), get())
     }
 
-    single {
-        TokenRefreshService(get(), get())
+
+    // Provide TokenRefreshService
+    //todo need to add all info
+    single<TokenRefreshService> {
+        val httpClient: HttpClient = get(named("MainGateway"))
+        TokenRefreshServiceImpl(httpClient)
     }
 
-    single<TokenRefreshService> { KtorGatewayService(get()) }
 
     single(named("MainGateway")) {
-        HttpClient(CIO) {
-            install(JsonFeature) {
-                serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                })
+        HttpClient {
+            install(ContentNegotiation) {
+                json(
+                    json = Json {
+                        isLenient = true
+                        ignoreUnknownKeys = true
+                    }
+                )
             }
 
             defaultRequest {
@@ -103,12 +110,14 @@ val networkModule = module {
     }
 
     single(named("SecureGateway")) {
-        HttpClient(CIO) {
-            install(JsonFeature) {
-                serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                })
+        HttpClient {
+            install(ContentNegotiation) {
+                json(
+                    json = Json {
+                        isLenient = true
+                        ignoreUnknownKeys = true
+                    }
+                )
             }
 
             defaultRequest {
@@ -118,9 +127,6 @@ val networkModule = module {
     }
 }
 
-private fun createCache(context: Context): Cache {
-    return Cache(context.cacheDir, CACHE_SIZE)
-}
 
 fun provideCertificateInterceptor(
     certTransparencyFlagProvider: CertTransparencyFlagProvider,

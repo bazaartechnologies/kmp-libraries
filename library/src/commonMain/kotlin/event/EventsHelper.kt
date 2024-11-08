@@ -7,7 +7,6 @@ import com.bazaartech.core_network.event.EventsProperties.ERROR_MESSAGE
 import com.bazaartech.core_network.event.EventsProperties.EXCEPTION_NAME
 import com.bazaartech.core_network.event.EventsProperties.HTTP_CODE
 import com.bazaartech.core_network.http.CustomHttpException
-import javax.inject.Inject
 
 internal interface EventsHelper {
 
@@ -24,7 +23,7 @@ internal interface EventsHelper {
     ): HashMap<String, Any>
 }
 
-internal class EventHelperImp @Inject constructor(
+internal class EventHelperImp(
     private val eventLogger: NetworkEventLogger
 ) : EventsHelper {
 
@@ -35,7 +34,7 @@ internal class EventHelperImp @Inject constructor(
     override fun logApiExceptionEvent(eventName: String, e: Exception, apiUrl: String) {
         val properties = HashMap<String, Any>()
 
-        properties[EXCEPTION_NAME] = e::class.java.simpleName
+        properties[EXCEPTION_NAME] = e::class.simpleName ?: "UnknownException"
         properties[ERROR_MESSAGE] = e.message.toString()
         properties[API_URL] = apiUrl
 
@@ -45,7 +44,7 @@ internal class EventHelperImp @Inject constructor(
     override fun logApiHttpExceptionEvent(eventName: String, e: CustomHttpException, apiUrl: String) { // ktlint-disable max-line-length
         val properties = HashMap<String, Any>()
 
-        properties[EXCEPTION_NAME] = e::class.java.simpleName
+        properties[EXCEPTION_NAME] = e::class.simpleName ?: "UnknownException"
         properties[HTTP_CODE] = e.code()
         properties[ERROR_MESSAGE] = e.message().toString()
         properties[API_URL] = apiUrl

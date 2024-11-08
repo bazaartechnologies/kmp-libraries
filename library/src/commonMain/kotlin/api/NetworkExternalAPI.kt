@@ -1,8 +1,8 @@
 package com.bazaartech.core_network.api
 
+import io.ktor.client.HttpClient
+
 interface NetworkExternalAPI {
-
-    fun <T> createServiceOnMainGateway(type: Class<T>): T
-
-    fun <T> createServiceOnSecureGateway(type: Class<T>): T
+    fun createServiceOnMainGateway(): HttpClient
+    fun createServiceOnSecureGateway(): HttpClient
 }
