@@ -2,16 +2,21 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+//    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
+    id("org.jetbrains.kotlin.multiplatform")
+    id("maven-publish")
 }
 
-group = "io.github.kotlin"
-version = "1.0.0"
+group = "com.tech.bazaar.kmp" // Replace with your group
+version = "1.0.4" // Replace with your desired version
+
+//apply(from = file("publish.gradle"))
 
 kotlin {
-    jvm()
+//    jvm()
     androidTarget {
         compilations.all {
             kotlinOptions {
@@ -22,19 +27,23 @@ kotlin {
     iosX64()
     iosArm64()
     iosSimulatorArm64()
-    linuxX64()
+//    linuxX64()
 
     sourceSets {
         androidMain.dependencies {
-            implementation(libs.ktor.client.okhttp)
+            implementation("io.ktor:ktor-client-okhttp:2.3.12")
         }
         iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
+            implementation("io.ktor:ktor-client-darwin:2.3.12")
         }
         commonMain.dependencies {
-            implementation(libs.bundles.ktor)
-            implementation(libs.koin.core)
-            implementation(libs.koin.annotation)
+            implementation("io.ktor:ktor-client-core:2.3.12")
+            implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
+            implementation("io.ktor:ktor-client-auth:2.3.12")
+            implementation("io.ktor:ktor-client-logging:2.3.12")
+            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+            implementation("io.insert-koin:koin-core:3.4.2")
+            implementation("io.insert-koin:koin-annotations:1.4.0")
         }
 
         // Required by KMM-ViewModel
@@ -45,20 +54,20 @@ kotlin {
 
         val commonTest by getting {
             dependencies {
-                implementation(libs.kotlin.test)
+                implementation("org.jetbrains.kotlin:kotlin-test:1.9.20")
             }
         }
     }
 }
 
 dependencies {
-    add("ksp", libs.koin.ksp.compiler)
+    add("ksp", "io.insert-koin:koin-ksp-compiler:1.4.0")
 }
 
 android {
     namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk = 34
     defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        minSdk = 21
     }
 }
