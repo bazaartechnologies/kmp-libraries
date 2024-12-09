@@ -11,13 +11,14 @@ plugins {
 }
 
 group = "com.tech.bazaar.kmp" // Replace with your group
-version = "1.0.10" // Replace with your desired version
+version = "1.0.12" // Replace with your desired version
 
 apply(from = file("publish.gradle"))
 
 kotlin {
 //    jvm()
     androidTarget {
+        publishLibraryVariants("release")
         compilations.all {
             kotlinOptions {
                 jvmTarget = "17"
@@ -69,5 +70,9 @@ android {
     compileSdk = 34
     defaultConfig {
         minSdk = 21
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
