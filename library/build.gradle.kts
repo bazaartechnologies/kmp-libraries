@@ -11,9 +11,9 @@ plugins {
 }
 
 group = "com.tech.bazaar.kmp" // Replace with your group
-version = "1.0.4" // Replace with your desired version
+version = "1.0.10" // Replace with your desired version
 
-//apply(from = file("publish.gradle"))
+apply(from = file("publish.gradle"))
 
 kotlin {
 //    jvm()
