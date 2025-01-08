@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "com.tech.bazaar.kmp" // Replace with your group
-version = "1.0.12" // Replace with your desired version
+version = "1.0.13" // Replace with your desired version
 
 apply(from = file("publish.gradle"))
 
@@ -21,7 +21,7 @@ kotlin {
         publishLibraryVariants("release")
         compilations.all {
             kotlinOptions {
-                jvmTarget = "17"
+                jvmTarget = "21"
             }
         }
     }
@@ -55,7 +55,7 @@ kotlin {
 
         val commonTest by getting {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-test:1.9.20")
+                implementation("org.jetbrains.kotlin:kotlin-test:2.0.0")
             }
         }
     }
@@ -67,12 +67,12 @@ dependencies {
 
 android {
     namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         minSdk = 21
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 }

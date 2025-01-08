@@ -6,6 +6,7 @@ import com.tech.bazaar.network.interceptor.HeadersPlugin
 import com.tech.bazaar.network.token.RefreshTokenRequest
 import com.tech.bazaar.network.token.TokenRefreshService
 import com.tech.bazaar.network.token.TokenRefreshServiceImpl
+import com.tech.bazaar.network.token.usecase.RenewToken
 import com.tech.bazaar.network.utils.Result
 import com.tech.bazaar.network.utils.safeApiCall
 import io.ktor.client.HttpClient
@@ -25,7 +26,6 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val networkModule = module {
-
     single {
         HttpClient {
             expectSuccess = true
@@ -34,7 +34,11 @@ val networkModule = module {
             }
 
             install(ContentNegotiation) {
-                json(json = Json { ignoreUnknownKeys = true })
+                json(json = Json {
+                    ignoreUnknownKeys = true
+                    isLenient = true
+                    encodeDefaults = true
+                })
             }
 
             install(HttpTimeout) {
@@ -53,6 +57,8 @@ val networkModule = module {
             install(Auth) {
                 val sessionManager: SessionManager = get()
                 val tokenRefreshService: TokenRefreshService = get()
+                val renewToken = RenewToken(sessionManager, tokenRefreshService)
+
                 bearer {
                     loadTokens {
                         BearerTokens(
@@ -61,56 +67,11 @@ val networkModule = module {
                         )
                     }
                     refreshTokens {
-                        val tokenRequest =
-                            RefreshTokenRequest(
-                                sessionManager.getUsername(),
-                                sessionManager.getRefreshToken()
-                            )
-                        val tokenResponse =
-                            safeApiCall {
-                                tokenRefreshService.renewAccessToken(tokenRequest)
-                            }
-                        when (tokenResponse) {
-                            is Result.Success -> {
-                                println(tokenResponse.data.toString())
-                                sessionManager.onTokenRefreshed(
-                                    tokenResponse.data.token,
-                                    tokenResponse.data.expiresAt,
-                                    tokenResponse.data.refreshToken
-                                )
-
-
-//                            handleSuccess(tokenResponse, requestBuilder)
-                            }
-
-                            is Result.Error -> {
-                                val exception = tokenResponse.exception
-                                if (exception is ResponseException) {
-                                    val response = exception.response
-
-                                    val responseCode = response.status.value
-
-                                    if (responseCode == 403 ||
-                                        responseCode == REFRESH_TOKEN_EXPIRED_CODE ||
-                                        responseCode == USER_SESSION_NOT_FOUND_CODE
-                                    ) {
-                                        sessionManager.onTokenExpires()
-                                    }
-                                }
-                            }
-
-                            else -> {}
-                        }
-
-
-                        return@refreshTokens BearerTokens(
-                            sessionManager.getAuthToken(),
-                            sessionManager.getRefreshToken()
-                        )
+                        renewToken()
                     }
 
                     sendWithoutRequest { request ->
-                        request.url.host == "bazaar-api.bazaar.technology"
+                        sessionManager.shouldSendWithoutRequest(request.url.host)
                     }
                 }
             }
@@ -137,7 +98,6 @@ val networkModule = module {
 
         }
     }
-//    single(named("CertificateInterceptor")) { provideCertificateInterceptor(get(), get()) }
 
 
     single<TokenRefreshService> {

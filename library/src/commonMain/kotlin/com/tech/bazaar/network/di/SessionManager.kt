@@ -12,6 +12,8 @@ interface SessionManager {
 
     fun onTokenExpires()
 
+    fun shouldSendWithoutRequest(host: String) = host == "bazaar-api.bazaar.technology"
+
     @Deprecated(
         "No need of this, network is handling the app " +
             "version name and version code internally, will removed this method in future"
