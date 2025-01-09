@@ -1,18 +1,12 @@
 package com.tech.bazaar.network.di
 
-import com.tech.bazaar.network.common.REFRESH_TOKEN_EXPIRED_CODE
-import com.tech.bazaar.network.common.USER_SESSION_NOT_FOUND_CODE
 import com.tech.bazaar.network.interceptor.HeadersPlugin
-import com.tech.bazaar.network.token.RefreshTokenRequest
 import com.tech.bazaar.network.token.TokenRefreshService
 import com.tech.bazaar.network.token.TokenRefreshServiceImpl
 import com.tech.bazaar.network.token.usecase.RenewToken
-import com.tech.bazaar.network.utils.Result
-import com.tech.bazaar.network.utils.safeApiCall
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpSend
 import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -21,6 +15,8 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -77,8 +73,7 @@ val networkModule = module {
             }
 
             engine {
-                // Enable connection pooling, connection retries, etc.
-                threadsCount = 4
+                dispatcher = Dispatchers.IO // Replace threadsCount
                 pipelining = true
             }
 
@@ -167,7 +162,7 @@ fun createHttpClient(): HttpClient {
         }
 
         engine {
-            threadsCount = 4
+            dispatcher = Dispatchers.IO // Replace threadsCount
             pipelining = true
         }
     }

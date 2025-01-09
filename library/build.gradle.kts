@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "com.tech.bazaar.kmp" // Replace with your group
-version = "1.0.13" // Replace with your desired version
+version = "1.0.14" // Replace with your desired version
 
 apply(from = file("publish.gradle"))
 
@@ -32,17 +32,17 @@ kotlin {
 
     sourceSets {
         androidMain.dependencies {
-            implementation("io.ktor:ktor-client-okhttp:2.3.12")
+            implementation("io.ktor:ktor-client-okhttp:3.0.3")
         }
         iosMain.dependencies {
-            implementation("io.ktor:ktor-client-darwin:2.3.12")
+            implementation("io.ktor:ktor-client-darwin:3.0.3")
         }
         commonMain.dependencies {
-            implementation("io.ktor:ktor-client-core:2.3.12")
-            implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
-            implementation("io.ktor:ktor-client-auth:2.3.12")
-            implementation("io.ktor:ktor-client-logging:2.3.12")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+            implementation("io.ktor:ktor-client-core:3.0.3")
+            implementation("io.ktor:ktor-client-content-negotiation:3.0.3")
+            implementation("io.ktor:ktor-client-auth:3.0.3")
+            implementation("io.ktor:ktor-client-logging:3.0.3")
+            implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.3")
             implementation("io.insert-koin:koin-core:3.4.2")
             implementation("io.insert-koin:koin-annotations:1.4.0")
         }
