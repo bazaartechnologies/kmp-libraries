@@ -2,11 +2,10 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-//    alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.android.library)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
-    id("org.jetbrains.kotlin.multiplatform")
+    alias(libs.plugins.kotlin.multiplatform)
     id("maven-publish")
 }
 
@@ -16,35 +15,33 @@ version = "1.0.15" // Replace with your desired version
 apply(from = file("publish.gradle"))
 
 kotlin {
-//    jvm()
     androidTarget {
         publishLibraryVariants("release")
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "21"
-            }
+
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_21)
         }
     }
     iosX64()
     iosArm64()
     iosSimulatorArm64()
-//    linuxX64()
 
     sourceSets {
         androidMain.dependencies {
-            api("io.ktor:ktor-client-okhttp:3.0.3")
+            api(libs.ktor.client.okhttp)
         }
         iosMain.dependencies {
-            api("io.ktor:ktor-client-darwin:3.0.3")
+            api(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
-            api("io.ktor:ktor-client-core:3.0.3")
-            implementation("io.ktor:ktor-client-content-negotiation:3.0.3")
-            implementation("io.ktor:ktor-client-auth:3.0.3")
-            implementation("io.ktor:ktor-client-logging:3.0.3")
-            implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.3")
-            implementation("io.insert-koin:koin-core:3.4.2")
-            implementation("io.insert-koin:koin-annotations:1.4.0")
+            api(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.auth)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.koin.core)
+            implementation(libs.koin.annotations)
         }
 
         // Required by KMM-ViewModel
@@ -55,7 +52,7 @@ kotlin {
 
         val commonTest by getting {
             dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-test:2.0.0")
+                implementation(libs.kotlin.test)
             }
         }
     }

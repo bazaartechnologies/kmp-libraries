@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "kmp-libraries"
 include(":library")
+include(":app")
