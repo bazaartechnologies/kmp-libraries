@@ -1,8 +1,8 @@
 .PHONY: publish
 
 publish:
-#	./gradlew :$(MODULE):detekt
-#	./gradlew :$(MODULE):ktlintCheck
-	./gradlew :$(MODULE):clean
-	./gradlew :$(MODULE):assembleRelease
-	./gradlew :$(MODULE):publish
+#	./gradlew :$(mod):detekt
+#	./gradlew :$(mod):ktlintCheck
+	./gradlew :$(mod):clean
+	./gradlew :$(mod):assembleRelease
+	./gradlew :$(mod):publish

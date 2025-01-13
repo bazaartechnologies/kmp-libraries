@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.tech.bazaar.kmp" // Replace with your group
-version = "1.0.15" // Replace with your desired version
+version = "1.1.0" // Replace with your desired version
 
 apply(from = file("publish.gradle"))
 
