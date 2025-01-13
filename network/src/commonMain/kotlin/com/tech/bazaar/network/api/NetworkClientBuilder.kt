@@ -24,6 +24,8 @@ class NetworkClientBuilder {
     private var sessionManager: SessionManager? = null
     private var versioningProvider: AppVersionDetailsProvider? = null
     private var networkEventLogger: NetworkEventLogger? = null
+    private var clientConfig: ClientConfig = ClientConfig()
+
 
     fun apiUrl(url: String) = apply { apiUrl = url }
 
@@ -35,12 +37,19 @@ class NetworkClientBuilder {
 
     fun networkEventLogger(logger: NetworkEventLogger) = apply { networkEventLogger = logger }
 
+    fun clientConfig(config: ClientConfig) = apply { clientConfig = config }
+
+    data class ClientConfig(
+         val isAuthorizationEnabled: Boolean = false
+    )
+
     fun build(): HttpClient {
         return build(
             apiUrl!!,
             authUrl!!,
             sessionManager!!,
-            versioningProvider!!
+            versioningProvider!!,
+            clientConfig
         )
     }
 
@@ -49,7 +58,8 @@ class NetworkClientBuilder {
             apiUrl: String,
             authUrl: String,
             sessionManager: SessionManager,
-            versioningProvider: AppVersionDetailsProvider
+            versioningProvider: AppVersionDetailsProvider,
+            clientConfig: ClientConfig
         ): HttpClient {
             return HttpClient {
                 expectSuccess = true
@@ -73,30 +83,32 @@ class NetworkClientBuilder {
 
                 install(
                     HeadersPlugin(
-                        sessionManager,
                         versioningProvider
                     )
                 )
+                if(clientConfig.isAuthorizationEnabled) {
+                    install(Auth) {
+                        val tokenRefreshService = DefaultTokenRefreshService(
+                            createHttpClientForTokenRefresh(authUrl = authUrl)
+                        )
+                        val renewToken = RenewToken(sessionManager, tokenRefreshService)
 
-                install(Auth) {
-                    val tokenRefreshService = DefaultTokenRefreshService(
-                        createHttpClientForTokenRefresh(authUrl = authUrl)
-                    )
-                    val renewToken = RenewToken(sessionManager, tokenRefreshService)
+                        bearer {
+                            loadTokens {
+                                sessionManager.getRefreshToken()?.let {
+                                    BearerTokens(
+                                        accessToken = sessionManager.getAuthToken().orEmpty(),
+                                        refreshToken = it
+                                    )
+                                }
+                            }
+                            refreshTokens {
+                                renewToken()
+                            }
 
-                    bearer {
-                        loadTokens {
-                            BearerTokens(
-                                sessionManager.getAuthToken(),
-                                sessionManager.getRefreshToken()
-                            )
-                        }
-                        refreshTokens {
-                            renewToken()
-                        }
-
-                        sendWithoutRequest { request ->
-                            sessionManager.shouldSendWithoutRequest(request.url.host)
+                            sendWithoutRequest { request ->
+                                sessionManager.shouldSendWithoutRequest(request.url.host)
+                            }
                         }
                     }
                 }
@@ -110,19 +122,6 @@ class NetworkClientBuilder {
                     url(apiUrl)
                 }
 
-
-//            if (BuildConfig.DEBUG) {
-//                install(Logging) {
-//                    level = LogLevel.BODY
-//                    logger = Logger.DEFAULT
-//                }
-//            } else {
-//                install(Logging) {
-//                    level = LogLevel.NONE
-//                }
-//            }
-
-//            install(get(named("CertificateInterceptor"))) // Install custom Certificate Interceptor
 
             }
         }

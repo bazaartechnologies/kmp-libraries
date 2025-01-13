@@ -1,11 +1,11 @@
 package com.tech.bazaar.network.api
 
 interface SessionManager {
-    fun getAuthToken(): String
+    fun getAuthToken(): String?
 
-    fun getRefreshToken(): String
+    fun getRefreshToken(): String?
 
-    fun getUsername(): String
+    fun getUsername(): String?
 
     fun onTokenRefreshed(token: String, expiresAt: String, refreshToken: String)
 

@@ -25,10 +25,18 @@ internal class RenewToken(
     }
 
     private suspend fun renew(): BearerTokens? {
+        val userName = sessionManager.getUsername()
+        val refreshToken = sessionManager.getRefreshToken()
+
+        if (refreshToken == null || userName == null) {
+            sessionManager.onTokenExpires()
+            return null
+        }
+
         val tokenRequest =
             RefreshTokenRequest(
-                sessionManager.getUsername(),
-                sessionManager.getRefreshToken()
+                userName = userName,
+                refreshToken = refreshToken
             )
         val tokenResponse =
             safeApiCall {
