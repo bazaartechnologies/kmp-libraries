@@ -57,7 +57,7 @@ kotlin {
 }
 
 android {
-    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
+    namespace = "com.tech.bazaar.kmp.network"
     compileSdk = 35
     defaultConfig {
         minSdk = 21

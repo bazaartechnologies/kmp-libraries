@@ -14,5 +14,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "kmp-libraries"
-include(":library")
+include(":network")
 include(":app")
