@@ -1,4 +1,4 @@
-package com.tech.bazaar.network.utils
+package com.tech.bazaar.network.api
 
 interface AppVersionDetailsProvider {
     fun getAppVersionName(): String

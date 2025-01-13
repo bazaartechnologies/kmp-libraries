@@ -22,7 +22,7 @@ internal interface EventsHelper {
     ): HashMap<String, Any>
 }
 
-internal class EventHelperImp(
+internal class DefaultEventHelper(
     private val eventLogger: com.tech.bazaar.network.api.NetworkEventLogger
 ) : EventsHelper {
 

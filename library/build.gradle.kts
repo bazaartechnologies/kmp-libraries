@@ -40,8 +40,6 @@ kotlin {
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.koin.core)
-            implementation(libs.koin.annotations)
         }
 
         // Required by KMM-ViewModel
@@ -56,10 +54,6 @@ kotlin {
             }
         }
     }
-}
-
-dependencies {
-    add("ksp", "io.insert-koin:koin-ksp-compiler:1.4.0")
 }
 
 android {

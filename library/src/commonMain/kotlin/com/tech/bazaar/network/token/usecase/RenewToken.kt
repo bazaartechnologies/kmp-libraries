@@ -2,10 +2,10 @@ package com.tech.bazaar.network.token.usecase
 
 import com.tech.bazaar.network.common.REFRESH_TOKEN_EXPIRED_CODE
 import com.tech.bazaar.network.common.USER_SESSION_NOT_FOUND_CODE
-import com.tech.bazaar.network.di.SessionManager
+import com.tech.bazaar.network.api.SessionManager
 import com.tech.bazaar.network.token.RefreshTokenRequest
 import com.tech.bazaar.network.token.TokenRefreshService
-import com.tech.bazaar.network.utils.Result
+import com.tech.bazaar.network.utils.ApiResult
 import com.tech.bazaar.network.utils.safeApiCall
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -36,7 +36,7 @@ internal class RenewToken(
             }
 
         when (tokenResponse) {
-            is Result.Success -> {
+            is ApiResult.Success -> {
                 sessionManager.onTokenRefreshed(
                     tokenResponse.data.token,
                     tokenResponse.data.expiresAt,
@@ -49,7 +49,7 @@ internal class RenewToken(
                 )
             }
 
-            is Result.Error -> {
+            is ApiResult.Error -> {
                 val exception = tokenResponse.exception
                 if (exception is ResponseException) {
                     val response = exception.response

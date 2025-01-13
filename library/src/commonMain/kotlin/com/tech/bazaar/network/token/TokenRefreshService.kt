@@ -16,7 +16,7 @@ internal interface TokenRefreshService {
     suspend fun renewAccessToken(request: RefreshTokenRequest): RefreshTokenResponse
 }
 
-internal class TokenRefreshServiceImpl(private val client: HttpClient) : TokenRefreshService {
+internal class DefaultTokenRefreshService(private val client: HttpClient) : TokenRefreshService {
     override suspend fun renewAccessToken(request: RefreshTokenRequest): RefreshTokenResponse {
         val response: HttpResponse = client.post("/v3/auth/token/renew") {
             header(
@@ -26,7 +26,6 @@ internal class TokenRefreshServiceImpl(private val client: HttpClient) : TokenRe
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        println("tokenResponse: $response")
         return response.body<RefreshTokenResponse>()
     }
 }

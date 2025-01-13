@@ -1,5 +1,6 @@
 package com.tech.bazaar.network.interceptor
 
+import com.tech.bazaar.network.api.NetworkEventLogger
 import com.tech.bazaar.network.event.EventsProperties
 import com.tech.bazaar.network.http.ClientHttpException
 import com.tech.bazaar.network.http.CustomHttpException
@@ -12,7 +13,7 @@ import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.statement.request
 import io.ktor.http.HttpStatusCode
 
-class ApiFailureInterceptor (val exceptionLogger: com.tech.bazaar.network.api.NetworkApiExceptionLogger) {
+class ApiFailureInterceptor(private val eventLogger: NetworkEventLogger) {
 
     val plugin = createClientPlugin("ApiFailureInterceptor") {
         onResponse { response ->
@@ -35,7 +36,7 @@ class ApiFailureInterceptor (val exceptionLogger: com.tech.bazaar.network.api.Ne
         httpUrl: String,
         statusCode: HttpStatusCode
     ) {
-        exceptionLogger.logException(
+        eventLogger.logException(
             httpException,
             mapOf(
                 EventsProperties.API_URL to httpUrl,
