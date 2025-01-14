@@ -5,8 +5,8 @@ import com.tech.bazaar.network.common.USER_SESSION_NOT_FOUND_CODE
 import com.tech.bazaar.network.api.SessionManager
 import com.tech.bazaar.network.token.RefreshTokenRequest
 import com.tech.bazaar.network.token.TokenRefreshService
-import com.tech.bazaar.network.utils.ApiResult
-import com.tech.bazaar.network.utils.safeApiCall
+import com.tech.bazaar.network.api.ApiResult
+import com.tech.bazaar.network.api.safeApiCall
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import kotlinx.coroutines.sync.Mutex

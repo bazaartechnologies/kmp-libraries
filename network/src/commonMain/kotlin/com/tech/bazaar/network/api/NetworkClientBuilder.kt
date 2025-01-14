@@ -53,6 +53,10 @@ class NetworkClientBuilder {
         )
     }
 
+    fun buildWrapper(): NetworkClient {
+        return NetworkClient(build())
+    }
+
     companion object {
         private fun build(
             apiUrl: String,
