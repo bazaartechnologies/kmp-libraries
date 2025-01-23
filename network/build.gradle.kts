@@ -31,10 +31,18 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.certificate.transparency)
         }
+
         val androidDebug by creating {
             dependsOn(androidMain.get())
             dependencies {
                 implementation(libs.chucker.debug)
+            }
+        }
+
+        val androidRelease by creating {
+            dependsOn(androidMain.get())
+            dependencies {
+                implementation(libs.chucker.release)
             }
         }
 
