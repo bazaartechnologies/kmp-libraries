@@ -1,40 +1,51 @@
 package com.tech.bazaar.kmp.app
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tech.bazaar.kmp.app.presentation.CategoriesUiState
+import com.tech.bazaar.kmp.app.presentation.CategoriesViewModel
 
 @Composable
 fun ListScreen(
-    navigateToDetails: (DetailDestination) -> Unit
+    navigateToDetails: (DetailDestination) -> Unit,
+     categoryViewModel: CategoriesViewModel = CategoriesViewModel()
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        items.forEach {
-            Button(
-                onClick = { navigateToDetails.invoke(it) }
+
+    val uiState by categoryViewModel.uiState.collectAsStateWithLifecycle()
+    when(uiState){
+        is CategoriesUiState.Error -> println("Error")
+        CategoriesUiState.Loading -> println("Loading")
+        is CategoriesUiState.Success -> {
+            LazyColumn (
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(it.name)
+                when(uiState) {
+                    is CategoriesUiState.Error -> item { Text("Error") }
+                    CategoriesUiState.Loading -> item { Text("Loading") }
+                    is CategoriesUiState.Success -> {
+                        (uiState as CategoriesUiState.Success).categories.forEach {
+                            item {
+                                Button(
+                                    onClick = { }
+                                ) {
+                                    Text(it.title)
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
         }
     }
+
 }
 
-val items = mapOf(
-    1 to "Item 1",
-    2 to "Item 2",
-    3 to "Item 3",
-    4 to "Item 4",
-    5 to "Item 5",
-    6 to "Item 6",
-    7 to "Item 7",
-    8 to "Item 8"
-).map {
-    DetailDestination(it.key, it.value)
-}

@@ -3,14 +3,14 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.ksp)
+//    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.multiplatform)
     id("maven-publish")
 }
 
 group = "com.tech.bazaar.kmp" // Replace with your group
-version = "1.1.4" // Replace with your desired version
+version = "1.1.6" // Replace with your desired version
 
 apply(from = file("publish.gradle"))
 
@@ -29,13 +29,15 @@ kotlin {
 
     sourceSets {
         androidMain.dependencies {
-            api(libs.ktor.client.okhttp)
+            implementation(libs.ktor.client.okhttp)
+            implementation("io.ktor:ktor-client-android:3.0.3")
+            implementation(libs.certificate.transparency)
         }
         iosMain.dependencies {
-            api(libs.ktor.client.darwin)
+            implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
-            api(libs.ktor.client.core)
+            implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)

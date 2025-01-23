@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.native.couroutine)
 }
 
 kotlin {
@@ -52,6 +53,8 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.navigation.compose)
+            implementation(libs.shared.viewmodel)
+
         }
     }
 }
@@ -67,6 +70,7 @@ android {
     compileSdk = 35
     defaultConfig {
         minSdk = 21
+        targetSdk = 35
     }
     buildTypes {
         getByName("release") {

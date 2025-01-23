@@ -1,15 +1,13 @@
 package com.tech.bazaar.network.api
 
 interface SessionManager {
-    fun getAuthToken(): String?
+    suspend fun getAuthToken(): String?
 
-    fun getRefreshToken(): String?
+    suspend fun getRefreshToken(): String?
 
-    fun getUsername(): String?
+    suspend fun getUsername(): String?
 
-    fun onTokenRefreshed(token: String, expiresAt: String, refreshToken: String)
+    suspend fun onTokenRefreshed(token: String, expiresAt: String, refreshToken: String)
 
-    fun onTokenExpires()
-
-    fun shouldSendWithoutRequest(host: String) = host == "bazaar-api.bazaar.technology"
+    suspend fun onTokenExpires()
 }
