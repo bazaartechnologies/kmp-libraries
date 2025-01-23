@@ -19,7 +19,7 @@ navigationCompose = "2.8.0-alpha10"
 sharedViewModel = "1.0.0-BETA-1"
 nativeCouroutine = "1.0.0-ALPHA-19"
 core = "1.15.0"
-certificateTransparency = "2.5.74"
+certificateTransparency = "1.1.1"
 chucker = "4.1.0"
 
 [libraries]
@@ -49,7 +49,6 @@ shared-viewmodel = { module = "com.rickclephas.kmp:kmp-observableviewmodel-core"
 androidx-core = { group = "androidx.core", name = "core", version.ref = "core" }
 certificate-transparency = {group = "com.appmattus.certificatetransparency", name = "certificatetransparency-android", version.ref = "certificateTransparency" }
 chucker-debug = {group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
-chucker-preprod = {group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
 chucker-release = {group = "com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }
 
 

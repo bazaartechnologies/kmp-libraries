@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CategoriesResponseModelV2(
+data class CategoriesResponseModel(
     @SerialName("categories")
     var categories: ArrayList<CategoryDto>
 ) {

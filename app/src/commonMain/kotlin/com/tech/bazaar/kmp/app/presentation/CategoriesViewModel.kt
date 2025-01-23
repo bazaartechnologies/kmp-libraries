@@ -3,7 +3,7 @@ package com.tech.bazaar.kmp.app.presentation
 import com.rickclephas.kmp.observableviewmodel.ViewModel
 import com.rickclephas.kmp.nativecoroutines.NativeCoroutinesState
 import com.rickclephas.kmp.observableviewmodel.stateIn
-import com.tech.bazaar.kmp.app.data.CategoriesResponseModelV2
+import com.tech.bazaar.kmp.app.data.CategoriesResponseModel
 import com.tech.bazaar.kmp.app.data.repository.CategoryRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +31,7 @@ class CategoriesViewModel : ViewModel() {
 
 sealed interface CategoriesUiState {
     object Loading : CategoriesUiState
-    data class Success(val categories: List<CategoriesResponseModelV2.CategoryDto>) :
+    data class Success(val categories: List<CategoriesResponseModel.CategoryDto>) :
         CategoriesUiState
 
     data class Error(val message: String) : CategoriesUiState

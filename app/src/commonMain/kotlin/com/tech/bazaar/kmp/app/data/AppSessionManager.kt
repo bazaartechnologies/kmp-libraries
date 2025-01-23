@@ -2,9 +2,9 @@ package com.tech.bazaar.kmp.app.data
 
 import com.tech.bazaar.network.api.SessionManager
 
-class SessionManagerImpl : SessionManager {
+class AppSessionManager : SessionManager {
     override suspend fun getAuthToken(): String? {
-    return ""
+        return ""
     }
 
     override suspend fun getRefreshToken(): String? {
