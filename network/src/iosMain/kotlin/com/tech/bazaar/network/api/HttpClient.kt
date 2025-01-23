@@ -9,7 +9,7 @@ import kotlinx.coroutines.IO
 
 actual fun createHttpClient(
     config: NetworkClientBuilder.ClientConfig,
-    context: Any?,
+    context: PlatformContext?,
     configure: HttpClientConfig<*>.() -> Unit
 ): HttpClient {
     return HttpClient(Darwin){

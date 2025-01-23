@@ -5,6 +5,6 @@ import io.ktor.client.HttpClientConfig
 
 expect fun createHttpClient(
     config: NetworkClientBuilder.ClientConfig,
-    context: Any?,
+    context: PlatformContext?,
     configure: HttpClientConfig<*>.() -> Unit
 ): HttpClient

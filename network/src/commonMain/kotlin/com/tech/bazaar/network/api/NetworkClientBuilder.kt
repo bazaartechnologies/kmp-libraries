@@ -22,7 +22,7 @@ class NetworkClientBuilder {
     private var sessionManager: SessionManager? = null
     private var versioningProvider: AppVersionDetailsProvider? = null
     private var networkEventLogger: NetworkEventLogger? = null
-    private var platformContext: Any? = null
+    private var platformContext: PlatformContext? = null
     private var clientConfig: ClientConfig = ClientConfig()
 
     fun sessionManager(manager: SessionManager) = apply { sessionManager = manager }
@@ -30,7 +30,7 @@ class NetworkClientBuilder {
     fun versioningProvider(provider: AppVersionDetailsProvider) =
         apply { versioningProvider = provider }
 
-    fun platformContext(context: Any) = apply { platformContext = context }
+    fun platformContext(platformContext: PlatformContext) = apply { this.platformContext = platformContext }
 
     fun networkEventLogger(logger: NetworkEventLogger) = apply { networkEventLogger = logger }
 
@@ -79,7 +79,7 @@ class NetworkClientBuilder {
             sessionManager: SessionManager,
             versioningProvider: AppVersionDetailsProvider,
             clientConfig: ClientConfig,
-            platformContext: Any?
+            platformContext: PlatformContext?
         ): HttpClient {
             return createHttpClient(config = clientConfig, context = platformContext) {
                 expectSuccess = true
