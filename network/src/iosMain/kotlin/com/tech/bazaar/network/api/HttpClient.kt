@@ -7,11 +7,15 @@ import io.ktor.client.engine.darwin.certificates.CertificatePinner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
-actual fun createHttpClient(clientConfig:NetworkClientBuilder.ClientConfig, configure: HttpClientConfig<*>.() -> Unit): HttpClient {
+actual fun createHttpClient(
+    config: NetworkClientBuilder.ClientConfig,
+    context: Any?,
+    configure: HttpClientConfig<*>.() -> Unit
+): HttpClient {
     return HttpClient(Darwin){
         engine {
             val builder = CertificatePinner.Builder().apply {
-                setOf(clientConfig.authHost, clientConfig.apiHost).forEach {
+                setOf(config.authHost, config.apiHost).forEach {
                      certificatePins[it]?.let { pin ->
                          add(it, pin)
                      }

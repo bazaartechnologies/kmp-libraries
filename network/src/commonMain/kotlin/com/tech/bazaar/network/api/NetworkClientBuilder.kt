@@ -11,7 +11,6 @@ import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.http.URLParserException
 import io.ktor.http.Url
 import io.ktor.serialization.kotlinx.json.json
@@ -23,13 +22,15 @@ class NetworkClientBuilder {
     private var sessionManager: SessionManager? = null
     private var versioningProvider: AppVersionDetailsProvider? = null
     private var networkEventLogger: NetworkEventLogger? = null
+    private var platformContext: Any? = null
     private var clientConfig: ClientConfig = ClientConfig()
-
 
     fun sessionManager(manager: SessionManager) = apply { sessionManager = manager }
 
     fun versioningProvider(provider: AppVersionDetailsProvider) =
         apply { versioningProvider = provider }
+
+    fun platformContext(context: Any) = apply { platformContext = context }
 
     fun networkEventLogger(logger: NetworkEventLogger) = apply { networkEventLogger = logger }
 
@@ -54,31 +55,33 @@ class NetworkClientBuilder {
         }
     }
 
-    private fun buildClient(): HttpClient {
+    fun build(): NetworkClient {
         if (clientConfig.apiUrl.isEmpty()) {
             throw NetworkClientException("API URL must be provided")
         }
+
         if (clientConfig.authUrl.isEmpty()) {
             throw NetworkClientException("Auth URL must be provided")
         }
-        return build(
+
+        val httpClient = build(
             sessionManager!!,
             versioningProvider!!,
-            clientConfig
+            clientConfig,
+            platformContext
         )
-    }
 
-    fun build(): NetworkClient {
-        return NetworkClient(buildClient())
+        return NetworkClient(httpClient = httpClient)
     }
 
     companion object {
         private fun build(
             sessionManager: SessionManager,
             versioningProvider: AppVersionDetailsProvider,
-            clientConfig: ClientConfig
+            clientConfig: ClientConfig,
+            platformContext: Any?
         ): HttpClient {
-            return createHttpClient(clientConfig) {
+            return createHttpClient(config = clientConfig, context = platformContext) {
                 expectSuccess = true
                 install(HttpSend) {
                     maxSendCount = 3 // Retry a maximum of 3 times for failed requests
@@ -159,31 +162,6 @@ class NetworkClientBuilder {
             }
         }
 
-        private fun performCertificateTransparencyVerification(
-            request: HttpRequestBuilder,
-            logListServiceUrl: String
-        ): VerificationResult {
-            // Placeholder logic for actual verification
-            return VerificationResult.Success
-        }
-    }
-}
-
-
-sealed class VerificationResult {
-    data object Success : VerificationResult()
-    data class Failure(val reason: String) : VerificationResult()
-}
-
-interface CTLogger {
-    fun log(host: String, result: VerificationResult)
-}
-
-private object logger : CTLogger {
-    override fun log(host: String, result: VerificationResult) {
-        if (result is VerificationResult.Failure) {
-            println("Certificate transparency check failed for $host with reason: ${result.toString()}")
-        }
     }
 }
 
