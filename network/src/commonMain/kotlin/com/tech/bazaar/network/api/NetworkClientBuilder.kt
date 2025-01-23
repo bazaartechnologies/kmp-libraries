@@ -40,8 +40,8 @@ class NetworkClientBuilder {
         val apiUrl: String = "",
         val authUrl: String = "",
         val isAuthorizationEnabled: Boolean = false,
-        val isSslPinningEnabled: Boolean = false
-
+        val isSslPinningEnabled: Boolean = true,
+        val enableDebugMode: Boolean = false
     ) {
         val apiHost = try {
             Url(apiUrl).host

@@ -5,12 +5,13 @@ import com.rickclephas.kmp.nativecoroutines.NativeCoroutinesState
 import com.rickclephas.kmp.observableviewmodel.stateIn
 import com.tech.bazaar.kmp.app.data.CategoriesResponseModel
 import com.tech.bazaar.kmp.app.data.repository.CategoryRepository
+import com.tech.bazaar.network.api.PlatformContext
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 
-class CategoriesViewModel : ViewModel() {
-    private val categoryRepository = CategoryRepository()
+class CategoriesViewModel(platformContext: PlatformContext) : ViewModel() {
+    private val categoryRepository = CategoryRepository(platformContext)
 
     @NativeCoroutinesState
     val uiState: StateFlow<CategoriesUiState> =

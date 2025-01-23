@@ -9,13 +9,13 @@ plugins {
 }
 
 group = "com.tech.bazaar.kmp" // Replace with your group
-version = "1.2.3" // Replace with your desired version
+version = "1.3.0" // Replace with your desired version
 
 apply(from = file("publish.gradle"))
 
 kotlin {
     androidTarget {
-        publishLibraryVariants("release")
+        publishLibraryVariants("debug", "release")
 
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -31,6 +31,13 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.certificate.transparency)
         }
+        val androidDebug by creating {
+            dependsOn(androidMain.get())
+            dependencies {
+                implementation(libs.chucker.debug)
+            }
+        }
+
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }

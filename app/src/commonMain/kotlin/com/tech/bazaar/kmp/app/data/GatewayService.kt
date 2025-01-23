@@ -3,20 +3,23 @@ package com.tech.bazaar.kmp.app.data
 import com.tech.bazaar.kmp.app.data.Constants.GATEWAY_URL
 import com.tech.bazaar.network.api.NetworkClient
 import com.tech.bazaar.network.api.NetworkClientBuilder
+import com.tech.bazaar.network.api.PlatformContext
 import com.tech.bazaar.network.api.ResultState
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-class GatewayService {
-   private val client: NetworkClient = NetworkClientBuilder()
+class GatewayService(platformContext: PlatformContext) {
+    private val client: NetworkClient = NetworkClientBuilder()
         .sessionManager(AppSessionManager())
         .versioningProvider(AppVersionDetailsProviderImpl())
+        .platformContext(platformContext)
         .clientConfig(
             NetworkClientBuilder.ClientConfig(
                 isAuthorizationEnabled = true,
                 isSslPinningEnabled = true,
                 apiUrl = GATEWAY_URL,
-                authUrl = GATEWAY_URL
+                authUrl = GATEWAY_URL,
+                enableDebugMode = true
             )
         )
         .build()

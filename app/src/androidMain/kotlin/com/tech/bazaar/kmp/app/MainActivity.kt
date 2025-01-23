@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
+import com.tech.bazaar.network.api.PlatformContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,7 +17,10 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(isSystemInDarkTheme()) {
                 enableEdgeToEdge()
             }
-            App()
+            App(object : PlatformContext {
+                override val context: Any?
+                    get() = applicationContext
+            })
         }
     }
 }

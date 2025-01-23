@@ -14,20 +14,19 @@ import com.tech.bazaar.kmp.app.presentation.CategoriesViewModel
 
 @Composable
 fun ListScreen(
-    navigateToDetails: (DetailDestination) -> Unit,
-     categoryViewModel: CategoriesViewModel = CategoriesViewModel()
+    categoryViewModel: CategoriesViewModel,
+    navigateToDetails: (DetailDestination) -> Unit
 ) {
-
     val uiState by categoryViewModel.uiState.collectAsStateWithLifecycle()
-    when(uiState){
+    when (uiState) {
         is CategoriesUiState.Error -> println("Error")
         CategoriesUiState.Loading -> println("Loading")
         is CategoriesUiState.Success -> {
-            LazyColumn (
+            LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                when(uiState) {
+                when (uiState) {
                     is CategoriesUiState.Error -> item { Text("Error") }
                     CategoriesUiState.Loading -> item { Text("Loading") }
                     is CategoriesUiState.Success -> {

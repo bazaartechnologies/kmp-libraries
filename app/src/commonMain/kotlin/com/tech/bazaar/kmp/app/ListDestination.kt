@@ -11,6 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.tech.bazaar.kmp.app.presentation.CategoriesViewModel
+import com.tech.bazaar.network.api.PlatformContext
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -20,7 +22,7 @@ object ListDestination
 data class DetailDestination(val objectId: Int, val name: String)
 
 @Composable
-fun App() {
+fun App(platformContext: PlatformContext) {
     MaterialTheme(
         colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
     ) {
@@ -28,9 +30,9 @@ fun App() {
             val navController: NavHostController = rememberNavController()
             NavHost(navController = navController, startDestination = ListDestination) {
                 composable<ListDestination> {
-                    ListScreen(navigateToDetails = { detail ->
+                    ListScreen(categoryViewModel = CategoriesViewModel(platformContext)) { detail ->
                         navController.navigate(detail)
-                    })
+                    }
                 }
                 composable<DetailDestination> { backStackEntry ->
                     val data = backStackEntry.toRoute<DetailDestination>()

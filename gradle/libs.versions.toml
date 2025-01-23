@@ -20,7 +20,7 @@ sharedViewModel = "1.0.0-BETA-1"
 nativeCouroutine = "1.0.0-ALPHA-19"
 core = "1.15.0"
 certificateTransparency = "1.1.1"
-chucker = "4.1.0"
+chucker = "3.5.2"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
