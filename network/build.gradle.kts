@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.tech.bazaar.kmp" // Replace with your group
-version = "1.3.4" // Replace with your desired version
+version = "1.3.7" // Replace with your desired version
 
 apply(from = file("publish.gradle"))
 
@@ -21,7 +21,13 @@ kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
         }
+
+        dependencies {
+            debugImplementation(libs.chucker.debug)
+            releaseImplementation(libs.chucker.release)
+        }
     }
+
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -30,27 +36,12 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.certificate.transparency)
-            implementation(libs.chucker.debug)
         }
-
-
-//        val androidDebug by creating {
-//            dependsOn(androidMain.get())
-//            dependencies {
-//                implementation(libs.chucker.debug)
-//            }
-//        }
-//
-//        val androidRelease by creating {
-//            dependsOn(androidMain.get())
-//            dependencies {
-//                implementation(libs.chucker.release)
-//            }
-//        }
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
+
         commonMain.dependencies {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
@@ -59,16 +50,14 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
         }
 
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
+
         // Required by KMM-ViewModel
         all {
             languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
             languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
-        }
-
-        val commonTest by getting {
-            dependencies {
-                implementation(libs.kotlin.test)
-            }
         }
     }
 }
@@ -83,5 +72,16 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
     }
 }
