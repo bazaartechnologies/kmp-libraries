@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.tech.bazaar.kmp" // Replace with your group
-version = "1.3.0" // Replace with your desired version
+version = "1.3.4" // Replace with your desired version
 
 apply(from = file("publish.gradle"))
 
@@ -30,21 +30,23 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.certificate.transparency)
+            implementation(libs.chucker.debug)
         }
 
-        val androidDebug by creating {
-            dependsOn(androidMain.get())
-            dependencies {
-                implementation(libs.chucker.debug)
-            }
-        }
 
-        val androidRelease by creating {
-            dependsOn(androidMain.get())
-            dependencies {
-                implementation(libs.chucker.release)
-            }
-        }
+//        val androidDebug by creating {
+//            dependsOn(androidMain.get())
+//            dependencies {
+//                implementation(libs.chucker.debug)
+//            }
+//        }
+//
+//        val androidRelease by creating {
+//            dependsOn(androidMain.get())
+//            dependencies {
+//                implementation(libs.chucker.release)
+//            }
+//        }
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -70,6 +72,7 @@ kotlin {
         }
     }
 }
+
 
 android {
     namespace = "com.tech.bazaar.kmp.network"
