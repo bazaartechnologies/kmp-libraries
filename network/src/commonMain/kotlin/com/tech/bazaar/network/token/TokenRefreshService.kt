@@ -13,11 +13,15 @@ import io.ktor.http.contentType
 
 
 internal interface TokenRefreshService {
-    suspend fun renewAccessToken(request: RefreshTokenRequest): RefreshTokenResponse
+    suspend fun renewAccessToken(username: String, refreshToken: String): RefreshTokenResponse
 }
 
 internal class DefaultTokenRefreshService(private val client: HttpClient) : TokenRefreshService {
-    override suspend fun renewAccessToken(request: RefreshTokenRequest): RefreshTokenResponse {
+    override suspend fun renewAccessToken(username: String, refreshToken: String): RefreshTokenResponse {
+        val request = RefreshTokenRequest(
+            userName = username,
+            refreshToken = refreshToken
+        )
         val response: HttpResponse = client.post("/v3/auth/token/renew") {
             header(
                 CLIENT_KEY,

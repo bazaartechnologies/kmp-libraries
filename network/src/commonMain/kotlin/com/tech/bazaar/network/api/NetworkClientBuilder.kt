@@ -1,7 +1,8 @@
 package com.tech.bazaar.network.api
 
+import com.tech.bazaar.network.event.DefaultNetworkEventLogger
+import com.tech.bazaar.network.event.NetworkEventLogger
 import com.tech.bazaar.network.interceptor.HeadersPlugin
-import com.tech.bazaar.network.token.DefaultTokenRefreshService
 import com.tech.bazaar.network.token.usecase.RenewToken
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpSend
@@ -14,27 +15,31 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.http.URLParserException
 import io.ktor.http.Url
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.serialization.json.Json
 
 class NetworkClientBuilder {
     private var sessionManager: SessionManager? = null
-    private var versioningProvider: AppVersionDetailsProvider? = null
     private var networkEventLogger: NetworkEventLogger? = null
     private var platformContext: PlatformContext? = null
     private var clientConfig: ClientConfig = ClientConfig()
+    private var appConfig: AppConfig = AppConfig()
 
     fun sessionManager(manager: SessionManager) = apply { sessionManager = manager }
 
-    fun versioningProvider(provider: AppVersionDetailsProvider) =
-        apply { versioningProvider = provider }
+    fun platformContext(platformContext: PlatformContext) =
+        apply { this.platformContext = platformContext }
 
-    fun platformContext(platformContext: PlatformContext) = apply { this.platformContext = platformContext }
-
-    fun networkEventLogger(logger: NetworkEventLogger) = apply { networkEventLogger = logger }
+    fun eventLogger(logger: EventLogger) =
+        apply { networkEventLogger = DefaultNetworkEventLogger(logger) }
 
     fun clientConfig(config: ClientConfig) = apply { clientConfig = config }
+
+    fun appConfig(config: AppConfig) = apply { appConfig = config }
+
+    data class AppConfig(
+        val versionName: String = "",
+        val versionCode: String = ""
+    )
 
     data class ClientConfig(
         val apiUrl: String = "",
@@ -56,31 +61,43 @@ class NetworkClientBuilder {
     }
 
     fun build(): NetworkClient {
-        if (clientConfig.apiUrl.isEmpty()) {
-            throw NetworkClientException("API URL must be provided")
-        }
+        val authClient =
+            buildAuthClient(clientConfig = clientConfig, platformContext = platformContext)
 
-        if (clientConfig.authUrl.isEmpty()) {
-            throw NetworkClientException("Auth URL must be provided")
-        }
+        requireNotNull(sessionManager) { "Session manager is required." }
+        requireNotNull(sessionManager) { "Session manager is required." }
 
         val httpClient = build(
-            sessionManager!!,
-            versioningProvider!!,
-            clientConfig,
-            platformContext
+            authClient = authClient,
+            sessionManager = sessionManager!!,
+            networkEventLogger = networkEventLogger!!,
+            clientConfig = clientConfig,
+            appConfig = appConfig,
+            platformContext = platformContext
         )
 
         return NetworkClient(httpClient = httpClient)
     }
 
     companion object {
+        private val json = Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            encodeDefaults = true
+        }
+
         private fun build(
+            authClient: HttpClient,
             sessionManager: SessionManager,
-            versioningProvider: AppVersionDetailsProvider,
+            networkEventLogger: NetworkEventLogger,
             clientConfig: ClientConfig,
+            appConfig: AppConfig,
             platformContext: PlatformContext?
         ): HttpClient {
+            if (clientConfig.apiUrl.isEmpty()) {
+                throw NetworkClientException("API URL must be provided")
+            }
+
             return createHttpClient(config = clientConfig, context = platformContext) {
                 expectSuccess = true
                 install(HttpSend) {
@@ -88,11 +105,7 @@ class NetworkClientBuilder {
                 }
 
                 install(ContentNegotiation) {
-                    json(json = Json {
-                        ignoreUnknownKeys = true
-                        isLenient = true
-                        encodeDefaults = true
-                    })
+                    json(json = json)
                 }
 
                 install(HttpTimeout) {
@@ -102,16 +115,16 @@ class NetworkClientBuilder {
                 }
 
                 install(
-                    HeadersPlugin(
-                        versioningProvider
-                    )
+                    plugin = HeadersPlugin(appConfig = appConfig)
                 )
+
                 if (clientConfig.isAuthorizationEnabled) {
                     install(Auth) {
-                        val tokenRefreshService = DefaultTokenRefreshService(
-                            createHttpClientForTokenRefresh(authUrl = clientConfig.authUrl)
+                        val renewToken = RenewToken(
+                            sessionManager = sessionManager,
+                            authClient = authClient,
+                            networkEventLogger = networkEventLogger
                         )
-                        val renewToken = RenewToken(sessionManager, tokenRefreshService)
 
                         bearer {
                             loadTokens {
@@ -140,24 +153,22 @@ class NetworkClientBuilder {
             }
         }
 
-        private fun createHttpClientForTokenRefresh(authUrl: String): HttpClient {
-            return HttpClient {
+        private fun buildAuthClient(
+            clientConfig: ClientConfig,
+            platformContext: PlatformContext?
+        ): HttpClient {
+            if (clientConfig.authUrl.isEmpty()) {
+                throw NetworkClientException("Auth URL must be provided")
+            }
+
+            return createHttpClient(config = clientConfig, context = platformContext) {
                 expectSuccess = true
                 install(ContentNegotiation) {
-                    json(json = Json {
-                        ignoreUnknownKeys = true
-                        isLenient = true
-                        encodeDefaults = true
-                    })
+                    json(json = json)
                 }
 
                 defaultRequest {
-                    url(urlString = authUrl)
-                }
-
-                engine {
-                    dispatcher = Dispatchers.IO // Replace threadsCount
-                    pipelining = true
+                    url(urlString = clientConfig.authUrl)
                 }
             }
         }

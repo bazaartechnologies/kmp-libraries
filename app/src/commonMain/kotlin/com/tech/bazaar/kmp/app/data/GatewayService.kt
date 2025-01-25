@@ -11,8 +11,8 @@ import kotlinx.serialization.Serializable
 class GatewayService(platformContext: PlatformContext) {
     private val client: NetworkClient = NetworkClientBuilder()
         .sessionManager(AppSessionManager())
-        .versioningProvider(AppVersionDetailsProviderImpl())
         .platformContext(platformContext)
+        .appConfig(NetworkClientBuilder.AppConfig("kmp-app", "1.1.0"))
         .clientConfig(
             NetworkClientBuilder.ClientConfig(
                 isAuthorizationEnabled = true,

@@ -1,0 +1,76 @@
+package com.tech.bazaar.network.event
+
+import com.tech.bazaar.network.api.EventLogger
+import com.tech.bazaar.network.event.EventsProperties.BACKEND_CODE
+import com.tech.bazaar.network.event.EventsProperties.ERROR_MESSAGE
+import com.tech.bazaar.network.event.EventsProperties.EXCEPTION_NAME
+import com.tech.bazaar.network.event.EventsProperties.HTTP_CODE
+import com.tech.bazaar.network.http.CustomHttpException
+
+internal interface NetworkEventLogger {
+    fun logEvent(eventName: String, properties: HashMap<String, Any> = HashMap())
+
+    fun logExceptionEvent(
+        eventName: String,
+        exception: Throwable,
+        properties: HashMap<String, Any> = HashMap()
+    )
+}
+
+internal class DefaultNetworkEventLogger(
+    private val eventLogger: EventLogger?
+) : NetworkEventLogger {
+
+    override fun logEvent(eventName: String, properties: HashMap<String, Any>) {
+        eventLogger?.logEvent(eventName, properties)
+    }
+
+    override fun logExceptionEvent(
+        eventName: String,
+        exception: Throwable,
+        properties: HashMap<String, Any>
+    ) {
+        properties[EXCEPTION_NAME] = exception::class.simpleName ?: "UnknownException"
+        properties[ERROR_MESSAGE] = exception.message.orEmpty()
+
+        when (exception) {
+            is HttpApiException -> {
+                properties[HTTP_CODE] = exception.httpCode
+                properties[BACKEND_CODE] = exception.backendCode
+            }
+            is CustomHttpException -> {
+                properties[HTTP_CODE] = exception.code
+            }
+        }
+
+        eventLogger?.logException(
+            eventName = eventName,
+            exception = exception,
+            properties = properties
+        )
+    }
+}
+
+class HttpApiException(
+    val httpCode: Int,
+    val backendCode: Int,
+    val throwable: Throwable
+): Throwable("${throwable::class.simpleName}  ${throwable.message}")
+
+object EventsNames {
+    const val EVENT_REFRESH_TOKEN_NOT_VALID = "refresh_token_not_valid"
+    const val EVENT_CLIENT_API_FAILURES = "client_api_failures"
+    const val EVENT_CLIENT_HTTP_ERROR = "client_http_error"
+    const val EVENT_SERVER_HTTP_ERROR = "server_http_error"
+    const val EVENT_REFRESHING_AUTH_TOKEN_FAILED = "refreshing_auth_token_failed"
+    const val EVENT_REFRESH_TOKEN_API_IO_FAILURE = "refresh_token_api_io_failure"
+}
+
+object EventsProperties {
+    private const val PREFIX = "BZ_"
+    const val HTTP_CODE = PREFIX + "httpCode"
+    const val BACKEND_CODE = PREFIX + "backendCode"
+    const val ERROR_MESSAGE = PREFIX + "ErrorMessage"
+    const val API_URL = PREFIX + "ApiUrl"
+    const val EXCEPTION_NAME = PREFIX + "ExceptionName"
+}

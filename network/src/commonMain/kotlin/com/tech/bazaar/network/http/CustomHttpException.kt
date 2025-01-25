@@ -13,7 +13,7 @@ import kotlinx.serialization.json.jsonObject
 open class CustomHttpException(private val response: HttpResponse) : RuntimeException() {
     private val customCode: Int
     private val customMessage: String
-    private val errorJson: String? =  runBlocking {  response.bodyAsText().getOrNull(0) }.toString()
+    private val errorJson: String =  runBlocking {  response.bodyAsText().getOrNull(0) }.toString()
 
     override val message: String?
         get() = "HTTP $customCode $customMessage"
@@ -23,14 +23,8 @@ open class CustomHttpException(private val response: HttpResponse) : RuntimeExce
         customMessage = getErrorMessage(errorJson)
     }
 
-    open fun code(): Int {
-        return customCode
-    }
-
-    /** HTTP status message.  */
-    open fun message(): String? {
-        return customMessage
-    }
+    val code: Int
+        get() = customCode
 
     private fun getErrorCode(rawJson: String?): Int {
         return try {

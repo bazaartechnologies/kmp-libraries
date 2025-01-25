@@ -1,6 +1,6 @@
 package com.tech.bazaar.network.interceptor
 
-import com.tech.bazaar.network.api.AppVersionDetailsProvider
+import com.tech.bazaar.network.api.NetworkClientBuilder
 import com.tech.bazaar.network.interceptor.Plugin.APP_VERSION
 import com.tech.bazaar.network.interceptor.Plugin.APP_VERSION_CODE
 import com.tech.bazaar.network.interceptor.Plugin.APP_VERSION_NAME
@@ -11,26 +11,26 @@ import io.ktor.client.request.headers
 import io.ktor.util.AttributeKey
 
 class HeadersPlugin(
-    private val versionDetailsProvider: AppVersionDetailsProvider
+    private val appConfig: NetworkClientBuilder.AppConfig
 ) : HttpClientPlugin<Unit, HeadersPlugin> {
     override val key: AttributeKey<HeadersPlugin>
         get() = AttributeKey("HeadersPlugin")
 
     override fun prepare(block: Unit.() -> Unit): HeadersPlugin {
-        return HeadersPlugin( versionDetailsProvider)
+        return HeadersPlugin(appConfig = appConfig)
     }
 
     override fun install(plugin: HeadersPlugin, scope: HttpClient) {
         scope.requestPipeline.intercept(HttpRequestPipeline.State) {
             context.headers {
-                append(APP_VERSION, versionDetailsProvider.getAppVersionCode())
+                append(APP_VERSION, appConfig.versionCode)
                 append(
                     APP_VERSION_NAME,
-                    versionDetailsProvider.getAppVersionName()
+                    appConfig.versionName
                 )
                 append(
                     APP_VERSION_CODE,
-                    versionDetailsProvider.getAppVersionCode()
+                    appConfig.versionCode
                 )
             }
         }
