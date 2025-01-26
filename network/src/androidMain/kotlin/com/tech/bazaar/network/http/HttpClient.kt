@@ -1,15 +1,17 @@
-package com.tech.bazaar.network.api
+package com.tech.bazaar.network.http
 
 import android.content.Context
 import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
 import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.tech.bazaar.network.api.NetworkClientBuilder
+import com.tech.bazaar.network.api.PlatformContext
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.Dispatchers
 import okhttp3.Interceptor
 
-actual fun createHttpClient(
+internal actual fun createHttpClient(
     config: NetworkClientBuilder.ClientConfig,
     context: PlatformContext?,
     configure: HttpClientConfig<*>.() -> Unit

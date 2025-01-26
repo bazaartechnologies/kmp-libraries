@@ -12,6 +12,7 @@ class GatewayService(platformContext: PlatformContext) {
     private val client: NetworkClient = NetworkClientBuilder()
         .sessionManager(AppSessionManager())
         .platformContext(platformContext)
+        .eventLogger(AppEventLogger())
         .appConfig(NetworkClientBuilder.AppConfig("kmp-app", "1.1.0"))
         .clientConfig(
             NetworkClientBuilder.ClientConfig(

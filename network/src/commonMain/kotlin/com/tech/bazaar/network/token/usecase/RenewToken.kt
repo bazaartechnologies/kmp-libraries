@@ -2,11 +2,11 @@ package com.tech.bazaar.network.token.usecase
 
 import com.tech.bazaar.network.api.ResultState
 import com.tech.bazaar.network.api.SessionManager
+import com.tech.bazaar.network.api.exception.HttpApiException
 import com.tech.bazaar.network.api.safeApiCall
 import com.tech.bazaar.network.common.REFRESH_TOKEN_EXPIRED_CODE
 import com.tech.bazaar.network.common.USER_SESSION_NOT_FOUND_CODE
 import com.tech.bazaar.network.event.EventsNames
-import com.tech.bazaar.network.event.HttpApiException
 import com.tech.bazaar.network.event.NetworkEventLogger
 import com.tech.bazaar.network.token.DefaultTokenRefreshService
 import io.ktor.client.HttpClient

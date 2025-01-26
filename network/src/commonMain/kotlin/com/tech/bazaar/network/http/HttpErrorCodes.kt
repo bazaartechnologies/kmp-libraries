@@ -1,6 +1,6 @@
 package com.tech.bazaar.network.http
 
-object HttpErrorCodes {
+internal object HttpErrorCodes {
     const val CLIENT_START_RANGE = 400
     const val CLIENT_END_RANGE = 499
 

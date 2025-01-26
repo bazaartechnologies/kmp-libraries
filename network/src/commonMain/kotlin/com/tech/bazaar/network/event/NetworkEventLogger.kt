@@ -1,11 +1,14 @@
 package com.tech.bazaar.network.event
 
 import com.tech.bazaar.network.api.EventLogger
+import com.tech.bazaar.network.api.exception.ClientHttpException
+import com.tech.bazaar.network.api.exception.HttpApiException
+import com.tech.bazaar.network.api.exception.ServerHttpException
+import com.tech.bazaar.network.event.EventsProperties.API_URL
 import com.tech.bazaar.network.event.EventsProperties.BACKEND_CODE
 import com.tech.bazaar.network.event.EventsProperties.ERROR_MESSAGE
 import com.tech.bazaar.network.event.EventsProperties.EXCEPTION_NAME
 import com.tech.bazaar.network.event.EventsProperties.HTTP_CODE
-import com.tech.bazaar.network.http.CustomHttpException
 
 internal interface NetworkEventLogger {
     fun logEvent(eventName: String, properties: HashMap<String, Any> = HashMap())
@@ -18,11 +21,11 @@ internal interface NetworkEventLogger {
 }
 
 internal class DefaultNetworkEventLogger(
-    private val eventLogger: EventLogger?
+    private val eventLogger: EventLogger
 ) : NetworkEventLogger {
 
     override fun logEvent(eventName: String, properties: HashMap<String, Any>) {
-        eventLogger?.logEvent(eventName, properties)
+        eventLogger.logEvent(eventName, properties)
     }
 
     override fun logExceptionEvent(
@@ -38,24 +41,23 @@ internal class DefaultNetworkEventLogger(
                 properties[HTTP_CODE] = exception.httpCode
                 properties[BACKEND_CODE] = exception.backendCode
             }
-            is CustomHttpException -> {
-                properties[HTTP_CODE] = exception.code
+            is ServerHttpException -> {
+                properties[API_URL] = exception.statusCode
+                properties[HTTP_CODE] = exception.url
+            }
+            is ClientHttpException -> {
+                properties[API_URL] = exception.statusCode
+                properties[HTTP_CODE] = exception.url
             }
         }
 
-        eventLogger?.logException(
-            eventName = eventName,
+        eventLogger.logException(
             exception = exception,
+            eventName = eventName,
             properties = properties
         )
     }
 }
-
-class HttpApiException(
-    val httpCode: Int,
-    val backendCode: Int,
-    val throwable: Throwable
-): Throwable("${throwable::class.simpleName}  ${throwable.message}")
 
 object EventsNames {
     const val EVENT_REFRESH_TOKEN_NOT_VALID = "refresh_token_not_valid"
