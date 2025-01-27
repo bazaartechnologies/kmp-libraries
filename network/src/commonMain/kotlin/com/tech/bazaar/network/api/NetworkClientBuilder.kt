@@ -9,7 +9,6 @@ import com.tech.bazaar.network.plugin.LogApiFailure
 import com.tech.bazaar.network.plugin.ProceedIfInternetIsConnected
 import com.tech.bazaar.network.token.usecase.RenewToken
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.HttpCallValidator
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
@@ -73,12 +72,18 @@ class NetworkClientBuilder {
     }
 
     fun build(): NetworkClient {
-        val authClient =
-            buildAuthClient(clientConfig = clientConfig, platformContext = platformContext)
-
         requireNotNull(sessionManager) { "Session manager is required." }
         requireNotNull(networkEventLogger) { "Event logger is required." }
         check(clientConfig.maxFailureRetries >= 0) { "Max failure retries must be greater than 0" }
+
+        val authClient =
+            buildAuthClient(
+                clientConfig = clientConfig,
+                platformContext = platformContext,
+                networkEventLogger = networkEventLogger!!,
+                appConfig = appConfig,
+                internetConnectivityNotifier = InternetConnectivityNotifier.instance
+            )
 
         val httpClient = build(
             authClient = authClient,
@@ -86,7 +91,8 @@ class NetworkClientBuilder {
             networkEventLogger = networkEventLogger!!,
             clientConfig = clientConfig,
             appConfig = appConfig,
-            platformContext = platformContext
+            platformContext = platformContext,
+            internetConnectivityNotifier = InternetConnectivityNotifier.instance
         )
 
         return NetworkClient(httpClient = httpClient)
@@ -99,15 +105,14 @@ class NetworkClientBuilder {
             encodeDefaults = true
         }
 
-        private val internetConnectivityNotifier = InternetConnectivityNotifier.instance
-
         private fun build(
             authClient: HttpClient,
             sessionManager: SessionManager,
             networkEventLogger: NetworkEventLogger,
             clientConfig: ClientConfig,
             appConfig: AppConfig,
-            platformContext: PlatformContext?
+            platformContext: PlatformContext?,
+            internetConnectivityNotifier: InternetConnectivityNotifier
         ): HttpClient {
             if (clientConfig.apiUrl.isEmpty()) {
                 throw NetworkClientException("API URL must be provided")
@@ -191,7 +196,10 @@ class NetworkClientBuilder {
 
         private fun buildAuthClient(
             clientConfig: ClientConfig,
-            platformContext: PlatformContext?
+            platformContext: PlatformContext?,
+            networkEventLogger: NetworkEventLogger,
+            appConfig: AppConfig,
+            internetConnectivityNotifier: InternetConnectivityNotifier
         ): HttpClient {
             if (clientConfig.authUrl.isEmpty()) {
                 throw NetworkClientException("Auth URL must be provided")
@@ -199,8 +207,37 @@ class NetworkClientBuilder {
 
             return createHttpClient(config = clientConfig, context = platformContext) {
                 expectSuccess = true
+
+                if (clientConfig.enableDebugMode) {
+                    install(Logging) {
+                        logger = Logger.DEFAULT
+                        level = LogLevel.ALL
+                    }
+
+                    install(LogApiFailure) {
+                        eventLogger = networkEventLogger
+                    }
+                }
+
+                if (clientConfig.alwaysCheckInternetConnectivity) {
+                    install(ProceedIfInternetIsConnected) {
+                        connectivity = internetConnectivityNotifier
+                    }
+                }
+
                 install(ContentNegotiation) {
                     json(json = json)
+                }
+
+                install(HttpTimeout) {
+                    requestTimeoutMillis = 70_000
+                    connectTimeoutMillis = 70_000
+                    socketTimeoutMillis = 70_000
+                }
+
+                install(AppendHeaders) {
+                    versionName = appConfig.versionName
+                    versionCode = appConfig.versionCode
                 }
 
                 defaultRequest {

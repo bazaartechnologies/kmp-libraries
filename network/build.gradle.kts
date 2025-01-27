@@ -8,9 +8,6 @@ plugins {
     id("maven-publish")
 }
 
-group = "com.tech.bazaar.kmp" // Replace with your group
-version = "2.0.0" // Replace with your desired version
-
 apply(from = file("publish.gradle"))
 
 kotlin {
