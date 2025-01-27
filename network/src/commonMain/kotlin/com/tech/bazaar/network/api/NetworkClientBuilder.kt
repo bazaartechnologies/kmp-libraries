@@ -76,7 +76,7 @@ class NetworkClientBuilder {
         requireNotNull(networkEventLogger) { "Event logger is required." }
         check(clientConfig.maxFailureRetries >= 0) { "Max failure retries must be greater than 0" }
 
-        val authClient =
+        val authClient = if (clientConfig.isAuthorizationEnabled) {
             buildAuthClient(
                 clientConfig = clientConfig,
                 platformContext = platformContext,
@@ -84,6 +84,7 @@ class NetworkClientBuilder {
                 appConfig = appConfig,
                 internetConnectivityNotifier = InternetConnectivityNotifier.instance
             )
+        } else null
 
         val httpClient = build(
             authClient = authClient,
@@ -106,7 +107,7 @@ class NetworkClientBuilder {
         }
 
         private fun build(
-            authClient: HttpClient,
+            authClient: HttpClient?,
             sessionManager: SessionManager,
             networkEventLogger: NetworkEventLogger,
             clientConfig: ClientConfig,
@@ -164,7 +165,7 @@ class NetworkClientBuilder {
                     url(urlString = clientConfig.apiUrl)
                 }
 
-                if (clientConfig.isAuthorizationEnabled) {
+                if (authClient != null) {
                     install(Auth) {
                         val renewToken = RenewToken(
                             sessionManager = sessionManager,
