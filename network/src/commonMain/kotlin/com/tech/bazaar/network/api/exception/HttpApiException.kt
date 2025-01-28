@@ -2,6 +2,9 @@ package com.tech.bazaar.network.api.exception
 
 class HttpApiException(
     val httpCode: Int,
-    val backendCode: Int,
+    val backendCode: String,
     private val throwable: Throwable
-): NetworkClientException("${throwable::class.simpleName}  ${throwable.message}")
+): NetworkClientException(
+    message = "${throwable::class.simpleName}  ${throwable.message}",
+    cause = throwable
+)

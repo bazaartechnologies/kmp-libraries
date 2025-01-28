@@ -1,6 +1,6 @@
 package com.tech.bazaar.network.api
 
-import com.tech.bazaar.network.api.exception.NetworkClientException
+import com.tech.bazaar.network.api.exception.ConstraintViolationException
 import com.tech.bazaar.network.event.DefaultNetworkEventLogger
 import com.tech.bazaar.network.event.NetworkEventLogger
 import com.tech.bazaar.network.http.createHttpClient
@@ -14,6 +14,7 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.plugins.callid.CallId
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.DEFAULT
@@ -83,10 +84,10 @@ class NetworkClientBuilder {
                 networkEventLogger = networkEventLogger!!,
                 appConfig = appConfig,
                 internetConnectivityNotifier = InternetConnectivityNotifier.instance
-            )
+            ).let { NetworkClient(it) }
         } else null
 
-        val httpClient = build(
+        return build(
             authClient = authClient,
             sessionManager = sessionManager!!,
             networkEventLogger = networkEventLogger!!,
@@ -94,9 +95,7 @@ class NetworkClientBuilder {
             appConfig = appConfig,
             platformContext = platformContext,
             internetConnectivityNotifier = InternetConnectivityNotifier.instance
-        )
-
-        return NetworkClient(httpClient = httpClient)
+        ).let { NetworkClient(it) }
     }
 
     companion object {
@@ -107,7 +106,7 @@ class NetworkClientBuilder {
         }
 
         private fun build(
-            authClient: HttpClient?,
+            authClient: NetworkClient?,
             sessionManager: SessionManager,
             networkEventLogger: NetworkEventLogger,
             clientConfig: ClientConfig,
@@ -116,11 +115,13 @@ class NetworkClientBuilder {
             internetConnectivityNotifier: InternetConnectivityNotifier
         ): HttpClient {
             if (clientConfig.apiUrl.isEmpty()) {
-                throw NetworkClientException("API URL must be provided")
+                throw ConstraintViolationException("API URL must be provided")
             }
 
             return createHttpClient(config = clientConfig, context = platformContext) {
                 expectSuccess = true
+
+                install(CallId)
 
                 install(HttpRequestRetry) {
                     maxRetries = clientConfig.maxFailureRetries
@@ -203,11 +204,13 @@ class NetworkClientBuilder {
             internetConnectivityNotifier: InternetConnectivityNotifier
         ): HttpClient {
             if (clientConfig.authUrl.isEmpty()) {
-                throw NetworkClientException("Auth URL must be provided")
+                throw ConstraintViolationException("Auth URL must be provided")
             }
 
             return createHttpClient(config = clientConfig, context = platformContext) {
                 expectSuccess = true
+
+                install(CallId)
 
                 if (clientConfig.enableDebugMode) {
                     install(Logging) {

@@ -5,8 +5,8 @@ internal const val CUSTOMER_APP_KEY = "682521930eaac89fbaeebaeb6ea019f2d8b624897
 internal const val CUSTOMER_CLIENT_REFERENCE_ID = "jkgH02ngxg3FYOrYZim1IL"
 internal const val CLIENT_KEY_HEADER = "$CLIENT_KEY: $CUSTOMER_APP_KEY"
 
-internal const val REFRESH_TOKEN_EXPIRED_CODE = 1001
-internal const val USER_SESSION_NOT_FOUND_CODE = 1002
+internal const val REFRESH_TOKEN_EXPIRED_CODE = "1001"
+internal const val USER_SESSION_NOT_FOUND_CODE = "1002"
 
 internal const val PREFIX_AUTH_TOKEN = "Bearer "
 
