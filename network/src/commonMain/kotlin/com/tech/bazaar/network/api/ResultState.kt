@@ -6,8 +6,7 @@ import kotlinx.serialization.Serializable
 sealed interface ResultState<out T> {
     data class Success<T>(val data: T) : ResultState<T>
     data class Error(
-        val exception: Throwable? = null,
-        val errorResponse: ErrorResponse? = null
+        val exception: Throwable? = null
     ) : ResultState<Nothing> {
         val errorMessage: String
             get() = exception?.message.orEmpty()
@@ -17,7 +16,7 @@ sealed interface ResultState<out T> {
 @Serializable
 data class ErrorResponse(
     @SerialName("code")
-    val code: String = "0",
+    val code: String = "-1",
     @SerialName("message")
     val message: String = "",
     @SerialName("errors")

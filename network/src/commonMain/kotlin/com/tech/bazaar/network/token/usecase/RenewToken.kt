@@ -4,6 +4,7 @@ import com.tech.bazaar.network.api.NetworkClient
 import com.tech.bazaar.network.api.ResultState
 import com.tech.bazaar.network.api.SessionManager
 import com.tech.bazaar.network.api.exception.HttpApiException
+import com.tech.bazaar.network.api.exception.NetworkClientException
 import com.tech.bazaar.network.common.REFRESH_TOKEN_EXPIRED_CODE
 import com.tech.bazaar.network.common.USER_SESSION_NOT_FOUND_CODE
 import com.tech.bazaar.network.event.EventsNames
@@ -73,10 +74,9 @@ internal class RenewToken(
 
                 networkEventLogger.logExceptionEvent(
                     eventName = EventsNames.EVENT_REFRESH_TOKEN_API_IO_FAILURE,
-                    exception = HttpApiException(
-                        httpCode = -1,
-                        backendCode = "-1",
-                        throwable = exception ?: RuntimeException("Unknown error occurred")
+                    exception = NetworkClientException(
+                        message = "Unknown error occurred",
+                        cause = exception
                     )
                 )
                 networkEventLogger.logEvent(EventsNames.EVENT_REFRESHING_AUTH_TOKEN_FAILED)

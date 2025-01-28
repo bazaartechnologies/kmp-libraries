@@ -1,7 +1,10 @@
 package com.tech.bazaar.network.api
 
+import com.tech.bazaar.network.api.exception.BadResponseException
 import com.tech.bazaar.network.api.exception.HttpApiException
+import com.tech.bazaar.network.api.exception.NetworkClientException
 import io.ktor.client.HttpClient
+import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.accept
@@ -68,8 +71,9 @@ class NetworkClient(
                     exception = HttpApiException(
                         httpCode = response.status.value,
                         backendCode = errorBody.code,
-                        throwable = RuntimeException("Received error response")
-                    ), errorResponse = errorBody
+                        throwable = RuntimeException("Received error response"),
+                        errorResponse = errorBody
+                    )
                 )
             }
         } catch (e: ResponseException) {
@@ -78,19 +82,19 @@ class NetworkClient(
                 exception = HttpApiException(
                     httpCode = e.response.status.value,
                     backendCode = errorBody.code,
-                    throwable = e
-                ), errorResponse = errorBody
+                    throwable = e,
+                    errorResponse = errorBody
+                )
+            )
+        } catch (e: NoTransformationFoundException) {
+            ResultState.Error(
+                exception = BadResponseException(e)
             )
         } catch (e: Throwable) {
             ResultState.Error(
-                exception = HttpApiException(
-                    httpCode = -1,
-                    backendCode = "-1",
-                    throwable = e
-                ),
-                errorResponse = ErrorResponse(
-                    code = "-1",
-                    message = "Unexpected error: ${e.message}"
+                exception = NetworkClientException(
+                    message = "An unknown error has occurred",
+                    cause = e
                 )
             )
         }
