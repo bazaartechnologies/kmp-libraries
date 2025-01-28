@@ -12,3 +12,6 @@ xcuserdata
 #So we don't accidentally commit our private keys
 *.gpg
 github.properties
+.swiftpm
+.build
+androidmain

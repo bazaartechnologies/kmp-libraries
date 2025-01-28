@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -10,6 +11,9 @@ plugins {
 }
 
 kotlin {
+    val frameworkName = "KmpAppCommon"
+    val xcFramework = XCFramework(frameworkName)
+
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
@@ -21,8 +25,13 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "KmpApp"
+            baseName = frameworkName
+            binaryOption("bundleId", group.toString())
+            binaryOption("bundleVersion", version.toString())
             isStatic = true
+            freeCompilerArgs += listOf("-g")
+            debuggable = true
+            xcFramework.add(this)
         }
     }
 

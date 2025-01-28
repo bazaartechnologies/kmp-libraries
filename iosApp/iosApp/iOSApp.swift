@@ -1,10 +1,20 @@
-import UIKit
 import SwiftUI
-import ComposeApp
+import UIKit
+import KmpApp
+
+@main
+struct iOSApp: App {
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}
 
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
-        MainViewControllerKt.MainViewController()
+        KmpApp.MainViewControllerKt.MainViewController()
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
@@ -20,3 +30,4 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+

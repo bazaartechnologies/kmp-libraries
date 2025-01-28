@@ -1,0 +1,57 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Build artifacts and intermediate files
+build/
+DerivedData/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+
+# Xcode specific files
+xcuserdata/
+*.xcscmblueprint
+
+# Archives
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Logs
+*.log
+
+# Pods - CocoaPods dependencies
+Pods/
+
+# Carthage - Carthage dependencies
+Carthage/Build/
+
+# SPM Packages
+/.swiftpm
+/.build
+
+# Xcode environment overrides
+*.xcuserstate
+
+# Personal data
+*.key
+*.plist
+config.json
+
+# Environment variables and keys
+.env
+.env.*
+
+# Temporary Xcode project files
+*.xcodeproj/project.xcworkspace/
+xcuserdata/*
+# Ignoring Swift Package Manager Artifacts
+Package.resolved
