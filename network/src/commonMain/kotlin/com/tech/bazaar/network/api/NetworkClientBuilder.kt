@@ -117,10 +117,8 @@ class NetworkClientBuilder {
             if (clientConfig.apiUrl.isEmpty()) {
                 throw ConstraintViolationException("API URL must be provided")
             }
-
             return createHttpClient(config = clientConfig, context = platformContext) {
                 expectSuccess = true
-
                 install(CallId)
 
                 install(HttpRequestRetry) {
@@ -206,7 +204,6 @@ class NetworkClientBuilder {
             if (clientConfig.authUrl.isEmpty()) {
                 throw ConstraintViolationException("Auth URL must be provided")
             }
-
             return createHttpClient(config = clientConfig, context = platformContext) {
                 expectSuccess = true
 

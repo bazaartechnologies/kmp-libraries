@@ -14,22 +14,27 @@ internal actual fun createHttpClient(
     context: PlatformContext?,
     configure: HttpClientConfig<*>.() -> Unit
 ): HttpClient {
-    return HttpClient(Darwin){
+    return HttpClient(Darwin) {
         engine {
-            val builder = CertificatePinner.Builder().apply {
-                setOf(config.authHost, config.apiHost).forEach {
-                     certificatePins[it]?.let { pin ->
-                         add(it, pin)
-                     }
+            if (config.isSslPinningEnabled) {
+                val builder = CertificatePinner.Builder().apply {
+                    setOf(config.authHost, config.apiHost).forEach {
+                        certificatePins[it]?.let { pin ->
+                            add(it, pin)
+                        }
+                    }
                 }
+
+                handleChallenge(builder.build())
             }
-            handleChallenge(builder.build())
             dispatcher = Dispatchers.IO
             pipelining = true
         }
+        configure(this)
 
     }
 }
+
 val certificatePins = mapOf(
     "bazaar-api.bazaar.technology" to "sha256/84E3383BE814A25673672C188504FB9F05C4449F599307079C5B102DBE25E118",
     "api.bazaar-pay.com" to "sha256/4A577F1485604F6189052A0CBC80819670BF1AE81CD026B620EBFEB1F8C22375"

@@ -20,14 +20,16 @@ internal actual fun createHttpClient(
     return HttpClient(OkHttp) {
         engine {
             config {
-                addNetworkInterceptor(
-                    interceptor = provideCertificateInterceptor(
-                        urls = setOf(
-                            config.apiHost,
-                            config.authHost
+                if (config.isSslPinningEnabled) {
+                    addNetworkInterceptor(
+                        interceptor = provideCertificateInterceptor(
+                            urls = setOf(
+                                config.apiHost,
+                                config.authHost
+                            )
                         )
                     )
-                )
+                }
                 if (config.enableDebugMode && androidContext != null) {
                     addInterceptor(
                         ChuckerInterceptor
