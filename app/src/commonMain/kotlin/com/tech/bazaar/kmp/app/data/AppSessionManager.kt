@@ -1,8 +1,13 @@
 package com.tech.bazaar.kmp.app.data
 
 import com.tech.bazaar.network.api.SessionManager
+import com.tech.bazaar.network.api.TokenState
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class AppSessionManager : SessionManager {
+    override fun observeTokenState(): Flow<TokenState> = flowOf(TokenState.Idle)
+
     override suspend fun getAuthToken(): String? {
         return ""
     }

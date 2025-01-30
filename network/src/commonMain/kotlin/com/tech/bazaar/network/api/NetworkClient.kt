@@ -7,6 +7,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.auth.authProvider
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -18,10 +20,28 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentLength
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class NetworkClient(
-    val httpClient: HttpClient
+    val httpClient: HttpClient,
+    sessionManager: SessionManager? = null
 ) {
+    init {
+        sessionManager?.let {
+            CoroutineScope(Dispatchers.IO).launch {
+                it.observeTokenState().collectLatest { state ->
+                    if (state is TokenState.NewTokenAvailable) {
+                        httpClient.authProvider<BearerAuthProvider>()?.clearToken()
+                    }
+                }
+            }
+        }
+    }
+
     suspend inline fun <reified T> get(
         url: String,
         headers: Map<String, String> = emptyMap(),
