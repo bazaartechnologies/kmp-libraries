@@ -11,6 +11,7 @@ import com.tech.bazaar.network.token.usecase.RenewToken
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.authProvider
 import io.ktor.client.plugins.auth.authProviders
@@ -51,9 +52,16 @@ class NetworkClientBuilder {
     fun appConfig(config: AppConfig) = apply { appConfig = config }
 
     data class AppConfig(
-        val versionName: String = "",
-        val versionCode: String = ""
-    )
+        val appName: String = "Client",
+        val appVersion: String = "0.0.1",
+        val osVersion: String = "Unknown",
+        val osName: String = "Unknown",
+        val deviceName: String = "Unknown",
+        val deviceVersion: String = "Unknown"
+    ) {
+        val userAgent: String
+            get() = "$appName/$appVersion ($osName $osVersion; $deviceName $deviceVersion)"
+    }
 
     data class ClientConfig(
         val apiUrl: String = "",
@@ -63,7 +71,8 @@ class NetworkClientBuilder {
         val enableDebugMode: Boolean = false,
         val alwaysCheckInternetConnectivity: Boolean = true,
         val maxFailureRetries: Int = 2,
-        val enableExponentialDelayInRetries: Boolean = true
+        val enableExponentialDelayInRetries: Boolean = true,
+        val additionalHeadersToAppend: Map<String, String> = emptyMap()
     ) {
         val apiHost = try {
             Url(apiUrl).host
@@ -124,7 +133,12 @@ class NetworkClientBuilder {
             }
             return createHttpClient(config = clientConfig, context = platformContext) {
                 expectSuccess = true
+
                 install(CallId)
+
+                install(UserAgent) {
+                    agent = appConfig.userAgent
+                }
 
                 install(HttpRequestRetry) {
                     maxRetries = clientConfig.maxFailureRetries
@@ -160,9 +174,10 @@ class NetworkClientBuilder {
                     socketTimeoutMillis = 70_000
                 }
 
-                install(AppendHeaders) {
-                    versionName = appConfig.versionName
-                    versionCode = appConfig.versionCode
+                if (clientConfig.additionalHeadersToAppend.isNotEmpty()) {
+                    install(AppendHeaders) {
+                        putAll(clientConfig.additionalHeadersToAppend)
+                    }
                 }
 
                 defaultRequest {
@@ -214,6 +229,10 @@ class NetworkClientBuilder {
 
                 install(CallId)
 
+                install(UserAgent) {
+                    agent = appConfig.userAgent
+                }
+
                 if (clientConfig.enableDebugMode) {
                     install(Logging) {
                         logger = Logger.DEFAULT
@@ -239,11 +258,6 @@ class NetworkClientBuilder {
                     requestTimeoutMillis = 70_000
                     connectTimeoutMillis = 70_000
                     socketTimeoutMillis = 70_000
-                }
-
-                install(AppendHeaders) {
-                    versionName = appConfig.versionName
-                    versionCode = appConfig.versionCode
                 }
 
                 defaultRequest {

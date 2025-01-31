@@ -9,27 +9,14 @@ import io.ktor.util.AttributeKey
 internal class AppendHeaders private constructor(
     private val headers: Map<String, String>
 ) {
-    class Config {
-        var versionName: String = ""
-        var versionCode: String = ""
-    }
-
-    companion object Plugin : HttpClientPlugin<Config, AppendHeaders> {
+    companion object Plugin : HttpClientPlugin<MutableMap<String, String>, AppendHeaders> {
         override val key: AttributeKey<AppendHeaders>
             get() = AttributeKey("AppendHeaders")
 
-        override fun prepare(block: Config.() -> Unit): AppendHeaders {
-            val config = Config().apply(block)
+        override fun prepare(block: MutableMap<String, String>.() -> Unit): AppendHeaders {
+            val config = mutableMapOf<String, String>().apply(block)
             return AppendHeaders(
-                headers = mutableMapOf<String, String>().apply {
-                    if (config.versionName.isNotEmpty()) {
-                        put("AppVersionName", config.versionName)
-                    }
-                    if (config.versionCode.isNotEmpty()) {
-                        put("AppVersion", config.versionCode)
-                        put("AppVersionCode", config.versionCode)
-                    }
-                }
+                headers = config
             )
         }
 

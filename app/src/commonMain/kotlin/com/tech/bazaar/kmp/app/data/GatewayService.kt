@@ -21,7 +21,7 @@ class GatewayService(platformContext: PlatformContext) {
         .sessionManager(AppSessionManager(sessionStorage))
         .platformContext(platformContext)
         .eventLogger(AppEventLogger())
-        .appConfig(NetworkClientBuilder.AppConfig("kmp-app", "1.1.0"))
+        .appConfig(NetworkClientBuilder.AppConfig(appName = "kmp-app", appVersion = "1.1.0"))
         .clientConfig(
             NetworkClientBuilder.ClientConfig(
                 isAuthorizationEnabled = true,
