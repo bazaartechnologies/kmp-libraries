@@ -1,16 +1,24 @@
 package com.tech.bazaar.kmp.app.data
 
 import com.tech.bazaar.kmp.app.data.Constants.GATEWAY_URL
+import com.tech.bazaar.kmp.app.data.Constants.IDENTITY_URL
+import com.tech.bazaar.kmp.app.data.repository.SessionStorage
 import com.tech.bazaar.network.api.NetworkClient
 import com.tech.bazaar.network.api.NetworkClientBuilder
 import com.tech.bazaar.network.api.PlatformContext
 import com.tech.bazaar.network.api.ResultState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 class GatewayService(platformContext: PlatformContext) {
+    private val sessionStorage: SessionStorage = SessionStorage()
     private val client: NetworkClient = NetworkClientBuilder()
-        .sessionManager(AppSessionManager())
+        .sessionManager(AppSessionManager(sessionStorage))
         .platformContext(platformContext)
         .eventLogger(AppEventLogger())
         .appConfig(NetworkClientBuilder.AppConfig("kmp-app", "1.1.0"))
@@ -19,13 +27,31 @@ class GatewayService(platformContext: PlatformContext) {
                 isAuthorizationEnabled = true,
                 isSslPinningEnabled = true,
                 apiUrl = GATEWAY_URL,
-                authUrl = GATEWAY_URL,
+                authUrl = IDENTITY_URL,
                 enableDebugMode = true
             )
         )
         .build()
 
-    suspend fun getGuestUserSession(
+    init {
+        simulateClearingBearerTokens()
+    }
+
+    private fun simulateClearingBearerTokens() {
+        CoroutineScope(Dispatchers.IO).launch {
+            getGuestUserSession("kmp-app-test-device").let {
+                if (it is ResultState.Success) {
+                    sessionStorage.set(SessionStorage.USERNAME, "kmp-app-test-device")
+                    sessionStorage.set(SessionStorage.ACCESS_TOKEN, it.data.token)
+                    sessionStorage.set(SessionStorage.REFRESH_TOKEN, it.data.refreshToken)
+                }
+            }
+            delay(15000)
+            client.clearBearerTokens()
+        }
+    }
+
+    private suspend fun getGuestUserSession(
         deviceId: String
     ): ResultState<GuestUserSessionResponse> =
         client.post(
@@ -51,11 +77,13 @@ class GatewayService(platformContext: PlatformContext) {
 
 object Constants {
     private const val GATEWAY_DOMAIN = "bazaar-api.bazaar.technology"
+    private const val IDENTITY_GATEWAY_DOMAIN = "api.bazaar-identity.com"
     const val GATEWAY_URL = "https://$GATEWAY_DOMAIN/"
+    const val IDENTITY_URL = "https://$IDENTITY_GATEWAY_DOMAIN/"
     const val CLIENT_KEY = "X-Bazaar-Client-Key"
     const val CUSTOMER_APP_GUEST_KEY =
-        ""
-    const val ORGANIZATION_ID = ""
+        "8b623508563748979baed00871a29652193d5ad4eb6ea019f29faeb0eaac8897"
+    const val ORGANIZATION_ID = "7931660281019108183210"
 }
 
 @Serializable
