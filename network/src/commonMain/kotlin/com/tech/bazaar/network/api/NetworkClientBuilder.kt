@@ -100,7 +100,7 @@ class NetworkClientBuilder {
             appConfig = appConfig,
             platformContext = platformContext,
             internetConnectivityNotifier = InternetConnectivityNotifier.instance
-        ).let { NetworkClient(it, sessionManager) }
+        ).let { NetworkClient(it) }
     }
 
     companion object {

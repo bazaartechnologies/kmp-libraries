@@ -27,21 +27,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class NetworkClient(
-    val httpClient: HttpClient,
-    sessionManager: SessionManager? = null
+    val httpClient: HttpClient
 ) {
-    init {
-        sessionManager?.let {
-            CoroutineScope(Dispatchers.IO).launch {
-                it.observeTokenState().collectLatest { state ->
-                    if (state is TokenState.NewTokenAvailable) {
-                        httpClient.authProvider<BearerAuthProvider>()?.clearToken()
-                    }
-                }
-            }
-        }
-    }
-
     suspend inline fun <reified T> get(
         url: String,
         headers: Map<String, String> = emptyMap(),
@@ -118,6 +105,13 @@ class NetworkClient(
                 )
             )
         }
+    }
+
+    /**
+     * Clears the bearer token from the [HttpClient] so it can fetch updated tokens
+     */
+    fun clearBearerTokens() {
+        httpClient.authProvider<BearerAuthProvider>()?.clearToken()
     }
 }
 
