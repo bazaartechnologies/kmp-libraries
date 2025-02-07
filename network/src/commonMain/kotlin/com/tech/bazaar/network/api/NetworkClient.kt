@@ -10,21 +10,17 @@ import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.auth.authProvider
 import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import io.ktor.client.request.accept
-import io.ktor.client.request.get
+import io.ktor.client.request.get as httpGet
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
-import io.ktor.client.request.post
+import io.ktor.client.request.post as httpPost
+import io.ktor.client.request.put as httpPut
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentLength
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 class NetworkClient(
     val httpClient: HttpClient
@@ -35,7 +31,7 @@ class NetworkClient(
         params: Map<String, String> = emptyMap()
     ): ResultState<T> {
         return safeApiCall {
-            get(url) {
+            httpGet(url) {
                 headers.forEach { (key, value) ->
                     header(key, value)
                 }
@@ -53,7 +49,24 @@ class NetworkClient(
         headers: Map<String, String> = emptyMap()
     ): ResultState<T> {
         return safeApiCall {
-            post(url) {
+            httpPost(url) {
+                headers.forEach { (key, value) ->
+                    header(key, value)
+                }
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                setBody(body)
+            }
+        }
+    }
+
+    suspend inline fun <reified T> put(
+        url: String,
+        body: Any,
+        headers: Map<String, String> = emptyMap()
+    ): ResultState<T> {
+        return safeApiCall {
+            httpPut(url) {
                 headers.forEach { (key, value) ->
                     header(key, value)
                 }
