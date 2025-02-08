@@ -92,7 +92,7 @@ class NetworkClientBuilder {
                 platformContext = platformContext,
                 networkEventLogger = networkEventLogger!!,
                 appConfig = appConfig,
-                internetConnectivityNotifier = InternetConnectivityNotifier.instance
+                internetConnectivityNotifier = DefaultInternetConnectivityNotifier.instance
             ).let { NetworkClient(it) }
         } else null
 
@@ -103,7 +103,7 @@ class NetworkClientBuilder {
             clientConfig = clientConfig,
             appConfig = appConfig,
             platformContext = platformContext,
-            internetConnectivityNotifier = InternetConnectivityNotifier.instance
+            internetConnectivityNotifier = DefaultInternetConnectivityNotifier.instance
         ).let { NetworkClient(it) }
     }
 
