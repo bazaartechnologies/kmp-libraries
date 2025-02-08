@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tech.bazaar.kmp.app.presentation.CategoriesUiState
 import com.tech.bazaar.kmp.app.presentation.CategoriesViewModel
+import com.tech.bazaar.network.api.DefaultInternetConnectivityNotifier
 import com.tech.bazaar.network.api.InternetConnectivityNotifier
 import com.tech.bazaar.network.api.InternetConnectivityStatus
 
@@ -23,7 +24,7 @@ fun ListScreen(
     navigateToDetails: (DetailDestination) -> Unit
 ) {
     val uiState by categoryViewModel.uiState.collectAsStateWithLifecycle()
-    val connectionState by InternetConnectivityNotifier.instance.statusUpdates.collectAsStateWithLifecycle(
+    val connectionState by DefaultInternetConnectivityNotifier.instance.statusUpdates.collectAsStateWithLifecycle(
         InternetConnectivityStatus.Disconnected
     )
 
