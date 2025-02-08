@@ -6,3 +6,5 @@ publish:
 	./gradlew :$(mod):clean
 	./gradlew :$(mod):assembleRelease
 	./gradlew :$(mod):publish
+
+include scripts/adb.mk

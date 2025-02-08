@@ -1,16 +1,13 @@
 package com.tech.bazaar.network.api
 
 import dev.jordond.connectivity.Connectivity
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.map
 
 interface InternetConnectivityNotifier {
     val statusUpdates: Flow<InternetConnectivityStatus>
+    suspend fun getCurrentStatus(): InternetConnectivityStatus
     suspend fun isMonitoring(): Boolean?
     suspend fun isConnected(): Boolean
     suspend fun isDisconnected(): Boolean
@@ -20,16 +17,12 @@ interface InternetConnectivityNotifier {
 class DefaultInternetConnectivityNotifier private constructor(
     private val connectivity: Connectivity
 ) : InternetConnectivityNotifier {
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     override val statusUpdates = connectivity.statusUpdates
-        .distinctUntilChanged()
-        .debounce(1000L)
-        .mapLatest {
-            when (it) {
-                is Connectivity.Status.Connected -> InternetConnectivityStatus.Connected(it.isMetered)
-                Connectivity.Status.Disconnected -> InternetConnectivityStatus.Disconnected
-            }
-        }
+        .map { it.toInternetConnectivityStatus() }
+
+    override suspend fun getCurrentStatus(): InternetConnectivityStatus {
+        return connectivity.status().toInternetConnectivityStatus()
+    }
 
     override suspend fun isMonitoring(): Boolean? {
         return connectivity.isMonitoring.firstOrNull()
@@ -53,6 +46,13 @@ class DefaultInternetConnectivityNotifier private constructor(
                 autoStart = true
             }
         )
+    }
+}
+
+private fun Connectivity.Status.toInternetConnectivityStatus(): InternetConnectivityStatus {
+    return when (this) {
+        is Connectivity.Status.Connected -> InternetConnectivityStatus.Connected(isMetered)
+        Connectivity.Status.Disconnected -> InternetConnectivityStatus.Disconnected
     }
 }
 
