@@ -1,5 +1,6 @@
 package com.tech.bazaar.network.plugin
 
+import com.tech.bazaar.network.api.DefaultInternetConnectivityNotifier
 import com.tech.bazaar.network.api.InternetConnectivityNotifier
 import com.tech.bazaar.network.api.exception.NoInternetException
 import io.ktor.client.HttpClient
@@ -11,7 +12,7 @@ internal class ProceedIfInternetIsConnected private constructor(
     private val connectivity: InternetConnectivityNotifier
 ) {
     class Config {
-        var connectivity: InternetConnectivityNotifier = InternetConnectivityNotifier.instance
+        var connectivity: InternetConnectivityNotifier = DefaultInternetConnectivityNotifier.instance
     }
 
     companion object Plugin : HttpClientPlugin<Config, ProceedIfInternetIsConnected> {
