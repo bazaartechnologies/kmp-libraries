@@ -47,6 +47,7 @@ kotlin {
             implementation(libs.ktor.client.call.id)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.connectivity.device)
+            implementation(libs.ktor.client.mock)
         }
 
         commonTest.dependencies {
