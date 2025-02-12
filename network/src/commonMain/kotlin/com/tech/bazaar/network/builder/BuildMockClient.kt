@@ -6,6 +6,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
+import io.ktor.client.engine.mock.toByteArray
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.callid.CallId
@@ -20,9 +21,17 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.fullPath
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.toMap
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 internal fun buildMockClient(requests: MockClientBuilder.Requests): NetworkClient {
+    val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        prettyPrint = true
+        encodeDefaults = true
+    }
     val mockEngine = MockEngine { request ->
         val method = request.method
         val path = request.url.fullPath
@@ -34,13 +43,34 @@ internal fun buildMockClient(requests: MockClientBuilder.Requests): NetworkClien
             else -> null
         }
 
+        try {
+            val body = request.body.toByteArray().decodeToString()
+            matchedResponse?.validateRequest?.invoke(body, request.headers.toMap())
+        } catch (e: Exception) {
+            return@MockEngine respondError(
+                status = HttpStatusCode.BadRequest,
+                content = json.encodeToString(
+                    MockError.serializer(),
+                    MockError(error = "Mock response not found")
+                )
+            )
+        }
+
         return@MockEngine matchedResponse?.let {
             respond(
                 content = it.response,
                 status = HttpStatusCode.fromValue(it.responseCode),
-                headers = headersOf("Content-Type", listOf(ContentType.Application.Json.toString()))
+                headers = headersOf(
+                    "Content-Type", listOf(ContentType.Application.Json.toString())
+                )
             )
-        } ?: respondError(HttpStatusCode.NotFound, "Mock response not found")
+        } ?: respondError(
+            status = HttpStatusCode.NotFound,
+            content = json.encodeToString(
+                MockError.serializer(),
+                MockError(error = "Mock response not found")
+            )
+        )
     }
 
     return HttpClient(mockEngine) {
@@ -56,12 +86,7 @@ internal fun buildMockClient(requests: MockClientBuilder.Requests): NetworkClien
         }
 
         install(ContentNegotiation) {
-            json(json = Json {
-                ignoreUnknownKeys = true
-                isLenient = true
-                prettyPrint = true
-                encodeDefaults = true
-            })
+            json(json = json)
         }
 
         install(HttpTimeout) {
@@ -71,3 +96,8 @@ internal fun buildMockClient(requests: MockClientBuilder.Requests): NetworkClien
         }
     }.let { NetworkClient(it) }
 }
+
+@Serializable
+internal data class MockError(
+    private val error: String
+)

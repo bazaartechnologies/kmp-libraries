@@ -17,7 +17,11 @@ class MockClientBuilder {
         data class MockJsonApi(
             val path: String,
             val response: String = "",
-            val responseCode: Int = 200
+            val responseCode: Int = 200,
+            val validateRequest: (
+                requestBody: String, headers: Map<String, List<String>>
+            ) -> Unit = { _, _ ->
+            }
         )
     }
 }
