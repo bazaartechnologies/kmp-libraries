@@ -7,7 +7,7 @@ class HttpApiException(
     val backendCode: String,
     val throwable: Throwable,
     val errorResponse: ErrorResponse? = null
-): NetworkClientException(
-    message = "${throwable::class.simpleName}  ${throwable.message}",
+) : NetworkClientException(
+    message = if (errorResponse?.message.isNullOrBlank()) "${throwable::class.simpleName}  ${throwable.message}" else errorResponse?.message.orEmpty(),
     cause = throwable
 )
