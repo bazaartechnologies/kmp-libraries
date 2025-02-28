@@ -8,6 +8,18 @@ class HttpApiException(
     val throwable: Throwable,
     val errorResponse: ErrorResponse? = null
 ) : NetworkClientException(
-    message = if (errorResponse?.message.isNullOrBlank()) "${throwable::class.simpleName}  ${throwable.message}" else errorResponse?.message.orEmpty(),
+    message = buildErrorMessage(errorResponse, throwable),
     cause = throwable
 )
+
+private fun buildErrorMessage(errorResponse: ErrorResponse?, throwable: Throwable): String {
+    val errorMessage = errorResponse?.let {
+        it.message.ifBlank {
+            it.errors.firstOrNull()
+        }
+    }.orEmpty()
+
+    return errorMessage.ifBlank {
+        "${throwable::class.simpleName} ${throwable.message}"
+    }
+}
