@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 sealed interface ResultState<out T> {
-    data class Success<T>(val data: T) : ResultState<T>
+    data class Success<T>(val data: T, val info: ResultInfo = ResultInfo()) : ResultState<T>
     data class Error(
         val exception: Throwable? = null
     ) : ResultState<Nothing> {
@@ -21,4 +21,12 @@ data class ErrorResponse(
     val message: String = "",
     @SerialName("errors")
     val errors: List<String> = emptyList()
+)
+
+@Serializable
+data class ResultInfo(
+    @SerialName("headers")
+    val headers: Map<String, List<String>> = emptyMap(),
+    @SerialName("statusCode")
+    val statusCode: Int = 200
 )

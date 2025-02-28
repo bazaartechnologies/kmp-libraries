@@ -21,6 +21,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentLength
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import io.ktor.util.toMap
 
 class NetworkClient(
     val httpClient: HttpClient
@@ -84,7 +85,11 @@ class NetworkClient(
             val response = block(httpClient)
             if (response.status.isSuccess()) {
                 val data: T = response.body()
-                ResultState.Success(data = data)
+                val resultInfo = ResultInfo(
+                    headers = response.headers.toMap(),
+                    statusCode = response.status.value
+                )
+                ResultState.Success(data = data, info = resultInfo)
             } else {
                 val errorBody: ErrorResponse = response.parseErrorBody()
                 ResultState.Error(
