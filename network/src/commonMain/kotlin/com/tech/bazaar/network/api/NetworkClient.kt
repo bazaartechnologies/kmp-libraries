@@ -3,6 +3,7 @@ package com.tech.bazaar.network.api
 import com.tech.bazaar.network.api.exception.BadResponseException
 import com.tech.bazaar.network.api.exception.HttpApiException
 import com.tech.bazaar.network.api.exception.NetworkClientException
+import com.tech.bazaar.network.api.model.FileData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
@@ -10,18 +11,22 @@ import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.auth.authProvider
 import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import io.ktor.client.request.accept
-import io.ktor.client.request.get as httpGet
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
-import io.ktor.client.request.post as httpPost
-import io.ktor.client.request.put as httpPut
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentLength
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.util.toMap
+import io.ktor.client.request.get as httpGet
+import io.ktor.client.request.post as httpPost
+import io.ktor.client.request.put as httpPut
 
 class NetworkClient(
     val httpClient: HttpClient
@@ -57,6 +62,42 @@ class NetworkClient(
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
                 setBody(body)
+            }
+        }
+    }
+
+    suspend inline fun <reified T> upload(
+        url: String,
+        files: List<FileData>,
+        params: Map<String, String> = emptyMap(),
+        headers: Map<String, String> = emptyMap()
+    ): ResultState<T> {
+        return safeApiCall {
+            submitFormWithBinaryData(
+                url = url,
+                formData = formData {
+                    params.forEach { (key, value) -> append(key = key, value = value) }
+
+                    files.forEach { file ->
+                        val key = file.key.ifBlank { file.name }
+                        append(
+                            key = key,
+                            value = file.bytes,
+                            headers = Headers.build {
+                                append(
+                                    name = HttpHeaders.ContentDisposition,
+                                    value = "filename=\"${file.name}\""
+                                )
+                                append(HttpHeaders.ContentType, file.contentType)
+                            }
+                        )
+                    }
+                }
+            ) {
+                accept(ContentType.Application.Json)
+                headers.forEach { (key, value) ->
+                    header(key, value)
+                }
             }
         }
     }
