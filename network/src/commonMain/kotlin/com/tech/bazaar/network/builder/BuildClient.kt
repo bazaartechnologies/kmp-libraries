@@ -96,7 +96,7 @@ internal fun buildClient(
             url(urlString = clientConfig.apiUrl)
         }
 
-        if (tokenRefreshService != null) {
+        if (clientConfig.isAuthorizationEnabled && tokenRefreshService != null) {
             install(Auth) {
                 val renewToken = RenewToken(
                     sessionManager = sessionManager,
