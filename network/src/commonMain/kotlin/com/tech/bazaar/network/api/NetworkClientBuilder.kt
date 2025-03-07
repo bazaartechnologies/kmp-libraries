@@ -13,7 +13,6 @@ class NetworkClientBuilder {
     private var platformContext: PlatformContext? = null
     private var clientConfig: ClientConfig = ClientConfig()
     private var appConfig: AppConfig = AppConfig()
-    private var tokenRefreshService: TokenRefreshService? = null
     private var internetConnectivityNotifier: InternetConnectivityNotifier? = null
     private var json = Json {
         ignoreUnknownKeys = true
@@ -37,10 +36,6 @@ class NetworkClientBuilder {
         apply { internetConnectivityNotifier = notifier }
 
     fun json(json: Json) = apply { this.json = json }
-
-    fun tokenRefreshService(service: TokenRefreshService) = apply {
-        tokenRefreshService = service
-    }
 
     data class AppConfig(
         val appName: String = "Client",
@@ -78,18 +73,16 @@ class NetworkClientBuilder {
     }
 
     fun build(): NetworkClient {
-        requireNotNull(sessionManager) { "Session manager is required." }
         requireNotNull(networkEventLogger) { "Event logger is required." }
         check(clientConfig.maxFailureRetries >= 0) { "Max failure retries must be greater than 0" }
 
         if (clientConfig.isAuthorizationEnabled) {
-            requireNotNull(tokenRefreshService) { "Token refresh service is required." }
+            requireNotNull(sessionManager) { "Session manager is required." }
         }
 
         return buildClient(
             json = json,
-            tokenRefreshService = tokenRefreshService,
-            sessionManager = sessionManager!!,
+            sessionManager = sessionManager,
             networkEventLogger = networkEventLogger!!,
             clientConfig = clientConfig,
             appConfig = appConfig,

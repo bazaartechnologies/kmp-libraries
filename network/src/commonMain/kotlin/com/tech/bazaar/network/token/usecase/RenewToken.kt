@@ -1,42 +1,23 @@
 package com.tech.bazaar.network.token.usecase
 
 import com.tech.bazaar.network.api.SessionManager
-import com.tech.bazaar.network.api.TokenRefreshService
 import com.tech.bazaar.network.api.exception.FailedToRefreshTokensException
 import com.tech.bazaar.network.api.exception.TokenHasExpiredException
 import com.tech.bazaar.network.event.EventsNames
 import com.tech.bazaar.network.event.NetworkEventLogger
 import io.ktor.client.plugins.auth.providers.BearerTokens
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 internal class RenewToken(
     private val sessionManager: SessionManager,
-    private val networkEventLogger: NetworkEventLogger,
-    private val tokenRefreshService: TokenRefreshService
+    private val networkEventLogger: NetworkEventLogger
 ) {
-    private val mutex = Mutex()
-
     suspend operator fun invoke(): BearerTokens? {
-        mutex.withLock {
-            return renew()
-        }
+        return renew()
     }
 
     private suspend fun renew(): BearerTokens? {
-        val username = sessionManager.getUsername()
-        val refreshToken = sessionManager.getRefreshToken()
-
-        if (refreshToken == null || username == null) {
-            sessionManager.onTokenExpires()
-            return null
-        }
-
         return try {
-            val tokens = tokenRefreshService.renewTokens(
-                username = username,
-                refreshToken = refreshToken
-            )
+            val tokens = sessionManager.renewTokens()
             BearerTokens(
                 accessToken = tokens.accessToken,
                 refreshToken = tokens.refreshToken
@@ -46,7 +27,6 @@ internal class RenewToken(
                 eventName = EventsNames.EVENT_REFRESH_TOKEN_NOT_VALID,
                 exception = exception
             )
-            sessionManager.onTokenExpires()
             null
         } catch (exception: FailedToRefreshTokensException) {
             networkEventLogger.logExceptionEvent(

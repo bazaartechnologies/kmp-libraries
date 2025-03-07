@@ -6,7 +6,6 @@ import com.tech.bazaar.network.api.NetworkClientBuilder.AppConfig
 import com.tech.bazaar.network.api.NetworkClientBuilder.ClientConfig
 import com.tech.bazaar.network.api.PlatformContext
 import com.tech.bazaar.network.api.SessionManager
-import com.tech.bazaar.network.api.TokenRefreshService
 import com.tech.bazaar.network.api.exception.ConstraintViolationException
 import com.tech.bazaar.network.event.NetworkEventLogger
 import com.tech.bazaar.network.http.createHttpClient
@@ -32,8 +31,7 @@ import kotlinx.serialization.json.Json
 
 internal fun buildClient(
     json: Json,
-    tokenRefreshService: TokenRefreshService?,
-    sessionManager: SessionManager,
+    sessionManager: SessionManager?,
     networkEventLogger: NetworkEventLogger,
     clientConfig: ClientConfig,
     appConfig: AppConfig,
@@ -96,20 +94,19 @@ internal fun buildClient(
             url(urlString = clientConfig.apiUrl)
         }
 
-        if (clientConfig.isAuthorizationEnabled && tokenRefreshService != null) {
+        if (clientConfig.isAuthorizationEnabled && sessionManager != null) {
             install(Auth) {
                 val renewToken = RenewToken(
                     sessionManager = sessionManager,
-                    tokenRefreshService = tokenRefreshService,
                     networkEventLogger = networkEventLogger
                 )
 
                 bearer {
                     loadTokens {
-                        sessionManager.getRefreshToken()?.let {
+                        sessionManager.getTokens()?.let {
                             BearerTokens(
-                                accessToken = sessionManager.getAuthToken().orEmpty(),
-                                refreshToken = it
+                                accessToken = it.accessToken,
+                                refreshToken = it.refreshToken
                             )
                         }
                     }
