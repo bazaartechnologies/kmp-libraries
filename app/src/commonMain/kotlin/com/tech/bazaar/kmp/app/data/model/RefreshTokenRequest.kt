@@ -1,4 +1,4 @@
-package com.tech.bazaar.network.token
+package com.tech.bazaar.kmp.app.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

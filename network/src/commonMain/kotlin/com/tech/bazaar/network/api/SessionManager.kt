@@ -1,13 +1,8 @@
 package com.tech.bazaar.network.api
 
+import com.tech.bazaar.network.api.model.SessionTokens
+
 interface SessionManager {
-    suspend fun getAuthToken(): String?
-
-    suspend fun getRefreshToken(): String?
-
-    suspend fun getUsername(): String?
-
-    suspend fun onTokenRefreshed(token: String, expiresAt: String, refreshToken: String)
-
-    suspend fun onTokenExpires()
+    suspend fun getTokens(): SessionTokens?
+    suspend fun renewTokens(): SessionTokens
 }

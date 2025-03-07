@@ -31,8 +31,7 @@ import kotlinx.serialization.json.Json
 
 internal fun buildClient(
     json: Json,
-    authClient: NetworkClient?,
-    sessionManager: SessionManager,
+    sessionManager: SessionManager?,
     networkEventLogger: NetworkEventLogger,
     clientConfig: ClientConfig,
     appConfig: AppConfig,
@@ -95,20 +94,19 @@ internal fun buildClient(
             url(urlString = clientConfig.apiUrl)
         }
 
-        if (authClient != null) {
+        if (clientConfig.isAuthorizationEnabled && sessionManager != null) {
             install(Auth) {
                 val renewToken = RenewToken(
                     sessionManager = sessionManager,
-                    authClient = authClient,
                     networkEventLogger = networkEventLogger
                 )
 
                 bearer {
                     loadTokens {
-                        sessionManager.getRefreshToken()?.let {
+                        sessionManager.getTokens()?.let {
                             BearerTokens(
-                                accessToken = sessionManager.getAuthToken().orEmpty(),
-                                refreshToken = it
+                                accessToken = it.accessToken,
+                                refreshToken = it.refreshToken
                             )
                         }
                     }

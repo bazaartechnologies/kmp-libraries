@@ -1,9 +1,8 @@
 package com.tech.bazaar.network.api
 
+import com.tech.bazaar.network.builder.buildClient
 import com.tech.bazaar.network.event.DefaultNetworkEventLogger
 import com.tech.bazaar.network.event.NetworkEventLogger
-import com.tech.bazaar.network.builder.buildAuthClient
-import com.tech.bazaar.network.builder.buildClient
 import io.ktor.http.URLParserException
 import io.ktor.http.Url
 import kotlinx.serialization.json.Json
@@ -74,25 +73,16 @@ class NetworkClientBuilder {
     }
 
     fun build(): NetworkClient {
-        requireNotNull(sessionManager) { "Session manager is required." }
         requireNotNull(networkEventLogger) { "Event logger is required." }
         check(clientConfig.maxFailureRetries >= 0) { "Max failure retries must be greater than 0" }
 
-        val authClient = if (clientConfig.isAuthorizationEnabled) {
-            buildAuthClient(
-                json = json,
-                clientConfig = clientConfig,
-                platformContext = platformContext,
-                networkEventLogger = networkEventLogger!!,
-                appConfig = appConfig,
-                internetConnectivityNotifier = internetConnectivityNotifier!!
-            )
-        } else null
+        if (clientConfig.isAuthorizationEnabled) {
+            requireNotNull(sessionManager) { "Session manager is required." }
+        }
 
         return buildClient(
             json = json,
-            authClient = authClient,
-            sessionManager = sessionManager!!,
+            sessionManager = sessionManager,
             networkEventLogger = networkEventLogger!!,
             clientConfig = clientConfig,
             appConfig = appConfig,
