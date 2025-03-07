@@ -3,6 +3,8 @@ package com.tech.bazaar.kmp.app.data
 import com.tech.bazaar.kmp.app.data.Constants.GATEWAY_URL
 import com.tech.bazaar.kmp.app.data.Constants.IDENTITY_URL
 import com.tech.bazaar.kmp.app.data.repository.SessionStorage
+import com.tech.bazaar.network.api.DefaultInternetConnectivityNotifier
+import com.tech.bazaar.network.api.InternetConnectivityNotifier
 import com.tech.bazaar.network.api.NetworkClient
 import com.tech.bazaar.network.api.NetworkClientBuilder
 import com.tech.bazaar.network.api.PlatformContext
@@ -17,10 +19,12 @@ import kotlinx.serialization.Serializable
 
 class GatewayService(platformContext: PlatformContext) {
     private val sessionStorage: SessionStorage = SessionStorage()
+    private val internetConnectivityNotifier: InternetConnectivityNotifier = DefaultInternetConnectivityNotifier.instance
     private val client: NetworkClient = NetworkClientBuilder()
         .sessionManager(AppSessionManager(sessionStorage))
         .platformContext(platformContext)
         .eventLogger(AppEventLogger())
+        .internetConnectivityNotifier(internetConnectivityNotifier)
         .appConfig(NetworkClientBuilder.AppConfig(appName = "kmp-app", appVersion = "1.1.0"))
         .clientConfig(
             NetworkClientBuilder.ClientConfig(
