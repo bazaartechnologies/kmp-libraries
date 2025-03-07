@@ -59,16 +59,13 @@ internal class DefaultNetworkEventLogger(
     }
 }
 
-object EventsNames {
+internal object EventsNames {
     const val EVENT_REFRESH_TOKEN_NOT_VALID = "refresh_token_not_valid"
-    const val EVENT_CLIENT_API_FAILURES = "client_api_failures"
-    const val EVENT_CLIENT_HTTP_ERROR = "client_http_error"
-    const val EVENT_SERVER_HTTP_ERROR = "server_http_error"
     const val EVENT_REFRESHING_AUTH_TOKEN_FAILED = "refreshing_auth_token_failed"
     const val EVENT_REFRESH_TOKEN_API_IO_FAILURE = "refresh_token_api_io_failure"
 }
 
-object EventsProperties {
+internal object EventsProperties {
     private const val PREFIX = "BZ_"
     const val HTTP_CODE = PREFIX + "httpCode"
     const val BACKEND_CODE = PREFIX + "backendCode"

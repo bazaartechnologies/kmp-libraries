@@ -1,4 +1,4 @@
-package com.tech.bazaar.network.token
+package com.tech.bazaar.kmp.app.domain
 
 import com.tech.bazaar.network.api.NetworkClient
 import com.tech.bazaar.network.api.ResultState
@@ -7,8 +7,8 @@ import com.tech.bazaar.network.api.exception.FailedToRefreshTokensException
 import com.tech.bazaar.network.api.exception.HttpApiException
 import com.tech.bazaar.network.api.exception.TokenHasExpiredException
 import com.tech.bazaar.network.api.model.SessionTokens
-import com.tech.bazaar.network.common.CLIENT_KEY
-import com.tech.bazaar.network.common.CUSTOMER_APP_KEY
+import com.tech.bazaar.kmp.app.data.model.RefreshTokenRequest
+import com.tech.bazaar.kmp.app.data.model.RefreshTokenResponse
 
 class DefaultTokenRefreshService(private val client: NetworkClient) : TokenRefreshService {
     override suspend fun renewTokens(
@@ -54,5 +54,7 @@ class DefaultTokenRefreshService(private val client: NetworkClient) : TokenRefre
     companion object {
         const val REFRESH_TOKEN_EXPIRED_CODE = "1001"
         const val USER_SESSION_NOT_FOUND_CODE = "1002"
+        const val CLIENT_KEY = "X-Bazaar-Client-Key"
+        const val CUSTOMER_APP_KEY = "682521930eaac89fbaeebaeb6ea019f2d8b62489790087135085637897d5e4da"
     }
 }

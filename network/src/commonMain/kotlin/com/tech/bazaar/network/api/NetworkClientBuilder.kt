@@ -1,9 +1,8 @@
 package com.tech.bazaar.network.api
 
+import com.tech.bazaar.network.builder.buildClient
 import com.tech.bazaar.network.event.DefaultNetworkEventLogger
 import com.tech.bazaar.network.event.NetworkEventLogger
-import com.tech.bazaar.network.builder.buildAuthClient
-import com.tech.bazaar.network.builder.buildClient
 import io.ktor.http.URLParserException
 import io.ktor.http.Url
 import kotlinx.serialization.json.Json
@@ -14,6 +13,7 @@ class NetworkClientBuilder {
     private var platformContext: PlatformContext? = null
     private var clientConfig: ClientConfig = ClientConfig()
     private var appConfig: AppConfig = AppConfig()
+    private var tokenRefreshService: TokenRefreshService? = null
     private var internetConnectivityNotifier: InternetConnectivityNotifier? = null
     private var json = Json {
         ignoreUnknownKeys = true
@@ -37,6 +37,10 @@ class NetworkClientBuilder {
         apply { internetConnectivityNotifier = notifier }
 
     fun json(json: Json) = apply { this.json = json }
+
+    fun tokenRefreshService(service: TokenRefreshService) = apply {
+        tokenRefreshService = service
+    }
 
     data class AppConfig(
         val appName: String = "Client",
@@ -78,20 +82,13 @@ class NetworkClientBuilder {
         requireNotNull(networkEventLogger) { "Event logger is required." }
         check(clientConfig.maxFailureRetries >= 0) { "Max failure retries must be greater than 0" }
 
-        val authClient = if (clientConfig.isAuthorizationEnabled) {
-            buildAuthClient(
-                json = json,
-                clientConfig = clientConfig,
-                platformContext = platformContext,
-                networkEventLogger = networkEventLogger!!,
-                appConfig = appConfig,
-                internetConnectivityNotifier = internetConnectivityNotifier!!
-            )
-        } else null
+        if (clientConfig.isAuthorizationEnabled) {
+            requireNotNull(tokenRefreshService) { "Token refresh service is required." }
+        }
 
         return buildClient(
             json = json,
-            authClient = authClient,
+            tokenRefreshService = tokenRefreshService,
             sessionManager = sessionManager!!,
             networkEventLogger = networkEventLogger!!,
             clientConfig = clientConfig,
