@@ -3,6 +3,7 @@ package com.tech.bazaar.network.token.usecase
 import com.tech.bazaar.network.api.SessionManager
 import com.tech.bazaar.network.api.exception.FailedToRefreshTokensException
 import com.tech.bazaar.network.api.exception.TokenHasExpiredException
+import com.tech.bazaar.network.api.exception.SessionHasExpiredException
 import com.tech.bazaar.network.event.EventsNames
 import com.tech.bazaar.network.event.NetworkEventLogger
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -22,6 +23,12 @@ internal class RenewToken(
                 accessToken = tokens.accessToken,
                 refreshToken = tokens.refreshToken
             )
+        } catch (exception: SessionHasExpiredException) {
+            networkEventLogger.logExceptionEvent(
+                eventName = EventsNames.EVENT_SESSION_HAS_EXPIRED,
+                exception = exception
+            )
+            null
         } catch (exception: TokenHasExpiredException) {
             networkEventLogger.logExceptionEvent(
                 eventName = EventsNames.EVENT_REFRESH_TOKEN_NOT_VALID,
@@ -33,7 +40,6 @@ internal class RenewToken(
                 eventName = EventsNames.EVENT_REFRESH_TOKEN_API_IO_FAILURE,
                 exception = exception
             )
-            networkEventLogger.logEvent(EventsNames.EVENT_REFRESHING_AUTH_TOKEN_FAILED)
             null
         }
     }
