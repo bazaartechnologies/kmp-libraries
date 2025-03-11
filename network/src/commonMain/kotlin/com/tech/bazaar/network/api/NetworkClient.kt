@@ -156,6 +156,10 @@ class NetworkClient(
             ResultState.Error(
                 exception = BadResponseException(e)
             )
+        } catch (e: NetworkClientException) {
+            ResultState.Error(
+                exception = e
+            )
         } catch (e: Throwable) {
             ResultState.Error(
                 exception = NetworkClientException(

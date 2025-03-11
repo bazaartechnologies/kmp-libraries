@@ -42,12 +42,12 @@ internal class DefaultNetworkEventLogger(
                 properties[BACKEND_CODE] = exception.backendCode
             }
             is ServerHttpException -> {
-                properties[API_URL] = exception.statusCode
-                properties[HTTP_CODE] = exception.url
+                properties[API_URL] = exception.url
+                properties[HTTP_CODE] = exception.statusCode
             }
             is ClientHttpException -> {
-                properties[API_URL] = exception.statusCode
-                properties[HTTP_CODE] = exception.url
+                properties[API_URL] = exception.url
+                properties[HTTP_CODE] = exception.statusCode
             }
         }
 
