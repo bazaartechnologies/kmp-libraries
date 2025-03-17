@@ -66,6 +66,27 @@ class NetworkClient(
         }
     }
 
+    suspend inline fun <reified T> post(
+        url: String,
+        body: Any,
+        params: Map<String, String> = emptyMap(),
+        headers: Map<String, String> = emptyMap()
+    ): ResultState<T> {
+        return safeApiCall {
+            httpPost(url) {
+                headers.forEach { (key, value) ->
+                    header(key, value)
+                }
+                params.forEach { (key, value) ->
+                    parameter(key, value)
+                }
+                contentType(ContentType.Application.Json)
+                accept(ContentType.Application.Json)
+                setBody(body)
+            }
+        }
+    }
+
     suspend inline fun <reified T> upload(
         url: String,
         files: List<FileData>,
