@@ -1,6 +1,6 @@
 package com.tech.bazaar.network.api.model
 
-class FileData(
+data class FileData(
     val name: String,
     val bytes: ByteArray,
     val contentType: String,
