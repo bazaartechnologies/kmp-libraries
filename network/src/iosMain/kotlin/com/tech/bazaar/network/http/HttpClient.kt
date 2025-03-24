@@ -18,7 +18,7 @@ internal actual fun createHttpClient(
         engine {
             if (config.isSslPinningEnabled) {
                 val builder = CertificatePinner.Builder().apply {
-                    setOf(config.authHost, config.apiHost).forEach {
+                    setOf(config.apiHost).forEach {
                         certificatePins[it]?.let { pin ->
                             add(it, pin)
                         }

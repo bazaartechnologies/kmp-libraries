@@ -60,6 +60,8 @@ internal class DefaultNetworkEventLogger(
 }
 
 internal object EventsNames {
+    const val EVENT_ACCESS_TOKEN_RENEWAL_REQUESTED = "access_token_renewal_requested"
+    const val EVENT_ACCESS_TOKEN_RENEWED = "access_token_renewed"
     const val EVENT_REFRESH_TOKEN_NOT_VALID = "refresh_token_not_valid"
     const val EVENT_SESSION_HAS_EXPIRED = "refresh_token_session_has_expired"
     const val EVENT_REFRESH_TOKEN_API_IO_FAILURE = "refresh_token_api_io_failure"

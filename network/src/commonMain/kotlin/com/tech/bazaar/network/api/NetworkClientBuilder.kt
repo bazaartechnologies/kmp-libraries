@@ -51,22 +51,16 @@ class NetworkClientBuilder {
 
     data class ClientConfig(
         val apiUrl: String = "",
-        val authUrl: String = "",
         val isAuthorizationEnabled: Boolean = false,
         val isSslPinningEnabled: Boolean = true,
         val enableDebugMode: Boolean = false,
         val alwaysCheckInternetConnectivity: Boolean = true,
-        val maxFailureRetries: Int = 2,
+        val maxFailureRetries: Int = 0,
         val enableExponentialDelayInRetries: Boolean = true,
         val additionalHeadersToAppend: Map<String, String> = emptyMap()
     ) {
         val apiHost = try {
             Url(apiUrl).host
-        } catch (e: URLParserException) {
-            ""
-        }
-        val authHost = try {
-            Url(authUrl).host
         } catch (e: URLParserException) {
             ""
         }

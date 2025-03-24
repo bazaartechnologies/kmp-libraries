@@ -24,8 +24,7 @@ internal actual fun createHttpClient(
                     addNetworkInterceptor(
                         interceptor = provideCertificateInterceptor(
                             urls = setOf(
-                                config.apiHost,
-                                config.authHost
+                                config.apiHost
                             )
                         )
                     )

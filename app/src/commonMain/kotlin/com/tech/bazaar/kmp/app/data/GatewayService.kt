@@ -46,7 +46,6 @@ class GatewayService(platformContext: PlatformContext) {
                 isAuthorizationEnabled = true,
                 isSslPinningEnabled = true,
                 apiUrl = GATEWAY_URL,
-                authUrl = IDENTITY_URL,
                 enableDebugMode = true
             )
         )

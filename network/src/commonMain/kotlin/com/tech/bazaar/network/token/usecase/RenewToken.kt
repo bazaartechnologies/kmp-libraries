@@ -18,7 +18,13 @@ internal class RenewToken(
 
     private suspend fun renew(): BearerTokens? {
         return try {
+            networkEventLogger.logEvent(
+                eventName = EventsNames.EVENT_ACCESS_TOKEN_RENEWAL_REQUESTED
+            )
             val tokens = sessionManager.renewTokens()
+            networkEventLogger.logEvent(
+                eventName = EventsNames.EVENT_ACCESS_TOKEN_RENEWED
+            )
             BearerTokens(
                 accessToken = tokens.accessToken,
                 refreshToken = tokens.refreshToken
