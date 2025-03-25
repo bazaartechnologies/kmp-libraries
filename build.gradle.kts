@@ -11,5 +11,5 @@ plugins {
 
 subprojects {
     group = "com.tech.bazaar.kmp"
-    version = "2.8.1"
+    version = "2.8.2"
 }
