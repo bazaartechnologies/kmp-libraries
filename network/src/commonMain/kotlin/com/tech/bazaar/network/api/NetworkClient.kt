@@ -26,6 +26,7 @@ import io.ktor.http.contentLength
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.util.toMap
+import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.InternalAPI
 import io.ktor.client.request.get as httpGet
 import io.ktor.client.request.post as httpPost
@@ -136,10 +137,12 @@ class NetworkClient(
 
                         // Append each file
                         files.forEach { file ->
+                            val channel = ByteReadChannel(file.bytes)
+
                             val key = file.key.ifBlank { file.name }
                             append(
                                 key = key,
-                                value = file.bytes,
+                                value = channel ,
                                 headers = Headers.build {
                                     // Important: "form-data; name=...; filename=..."
                                     // so the server sees it as a file upload
