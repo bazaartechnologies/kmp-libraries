@@ -145,7 +145,7 @@ class NetworkClient(
                                     // so the server sees it as a file upload
                                     append(
                                         name = HttpHeaders.ContentDisposition,
-                                        value = "filename=\"${file.name}\""
+                                        value = """form-data; name="$key"; filename="${file.name}""""
                                     )
                                     append(HttpHeaders.ContentType, file.contentType)
                                 }
