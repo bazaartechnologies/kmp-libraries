@@ -1,5 +1,6 @@
 package com.tech.bazaar.network.builder
 
+import com.tech.bazaar.network.api.Constants.IS_MULTIPART
 import com.tech.bazaar.network.api.InternetConnectivityNotifier
 import com.tech.bazaar.network.api.NetworkClient
 import com.tech.bazaar.network.api.NetworkClientBuilder.AppConfig
@@ -27,6 +28,7 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.AttributeKey
 import kotlinx.serialization.json.Json
 
 internal fun buildClient(
@@ -61,6 +63,11 @@ internal fun buildClient(
             install(Logging) {
                 logger = Logger.DEFAULT
                 level = LogLevel.ALL
+
+                // Configure to avoid logging the body for multipart requests
+                filter { request ->
+                    request.attributes.getOrNull(AttributeKey<Boolean>(IS_MULTIPART)) == false
+                }
             }
 
             install(LogApiFailure) {
