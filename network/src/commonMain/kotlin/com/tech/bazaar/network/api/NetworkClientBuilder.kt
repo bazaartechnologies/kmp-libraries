@@ -3,8 +3,6 @@ package com.tech.bazaar.network.api
 import com.tech.bazaar.network.builder.buildClient
 import com.tech.bazaar.network.event.DefaultNetworkEventLogger
 import com.tech.bazaar.network.event.NetworkEventLogger
-import io.ktor.http.URLParserException
-import io.ktor.http.Url
 import kotlinx.serialization.json.Json
 
 class NetworkClientBuilder {
@@ -51,20 +49,16 @@ class NetworkClientBuilder {
 
     data class ClientConfig(
         val apiUrl: String = "",
+        val apiHost: String = "",
         val isAuthorizationEnabled: Boolean = false,
         val isSslPinningEnabled: Boolean = true,
         val enableDebugMode: Boolean = false,
         val alwaysCheckInternetConnectivity: Boolean = true,
         val maxFailureRetries: Int = 0,
         val enableExponentialDelayInRetries: Boolean = true,
-        val additionalHeadersToAppend: Map<String, String> = emptyMap()
-    ) {
-        val apiHost = try {
-            Url(apiUrl).host
-        } catch (e: URLParserException) {
-            ""
-        }
-    }
+        val additionalHeadersToAppend: Map<String, String> = emptyMap(),
+        val certificatePins: List<String> = emptyList(),
+    )
 
     fun build(): NetworkClient {
         requireNotNull(networkEventLogger) { "Event logger is required." }

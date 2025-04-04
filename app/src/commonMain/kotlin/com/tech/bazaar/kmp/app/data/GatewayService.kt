@@ -1,6 +1,8 @@
 package com.tech.bazaar.kmp.app.data
 
+import com.tech.bazaar.kmp.app.data.Constants.GATEWAY_DOMAIN
 import com.tech.bazaar.kmp.app.data.Constants.GATEWAY_URL
+import com.tech.bazaar.kmp.app.data.Constants.IDENTITY_GATEWAY_DOMAIN
 import com.tech.bazaar.kmp.app.data.Constants.IDENTITY_URL
 import com.tech.bazaar.kmp.app.data.repository.SessionStorage
 import com.tech.bazaar.network.api.DefaultInternetConnectivityNotifier
@@ -30,6 +32,7 @@ class GatewayService(platformContext: PlatformContext) {
                 isAuthorizationEnabled = false,
                 isSslPinningEnabled = true,
                 apiUrl = IDENTITY_URL,
+                apiHost = IDENTITY_GATEWAY_DOMAIN,
                 enableDebugMode = true
             )
         )
@@ -46,6 +49,7 @@ class GatewayService(platformContext: PlatformContext) {
                 isAuthorizationEnabled = true,
                 isSslPinningEnabled = true,
                 apiUrl = GATEWAY_URL,
+                apiHost = GATEWAY_DOMAIN,
                 enableDebugMode = true
             )
         )
@@ -94,8 +98,8 @@ class GatewayService(platformContext: PlatformContext) {
 }
 
 object Constants {
-    private const val GATEWAY_DOMAIN = "bazaar-api.bazaar.technology"
-    private const val IDENTITY_GATEWAY_DOMAIN = "api.bazaar-identity.com"
+    const val GATEWAY_DOMAIN = "bazaar-api.bazaar.technology"
+    const val IDENTITY_GATEWAY_DOMAIN = "api.bazaar-identity.com"
     const val GATEWAY_URL = "https://$GATEWAY_DOMAIN/"
     const val IDENTITY_URL = "https://$IDENTITY_GATEWAY_DOMAIN/"
     const val CLIENT_KEY = "X-Bazaar-Client-Key"

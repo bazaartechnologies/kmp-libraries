@@ -9,6 +9,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.Dispatchers
+import okhttp3.CertificatePinner
 import okhttp3.Interceptor
 
 internal actual fun createHttpClient(
@@ -28,6 +29,14 @@ internal actual fun createHttpClient(
                             )
                         )
                     )
+                    if (config.certificatePins.isNotEmpty()){
+                        certificatePinner(
+                            CertificatePinner.Builder().add(
+                                config.apiHost,
+                                *config.certificatePins.toTypedArray()
+                            ).build()
+                        )
+                    }
                 }
                 if (config.enableDebugMode && androidContext != null) {
                     addInterceptor(
