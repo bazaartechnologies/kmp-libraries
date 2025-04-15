@@ -3,6 +3,7 @@ package com.tech.bazaar.network.http
 import android.content.Context
 import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
 import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.tech.bazaar.network.FlipperInterceptorFactory
 import com.tech.bazaar.network.api.NetworkClientBuilder
 import com.tech.bazaar.network.api.PlatformContext
 import io.ktor.client.HttpClient
@@ -29,7 +30,7 @@ internal actual fun createHttpClient(
                             )
                         )
                     )
-                    if (config.certificatePins.isNotEmpty()){
+                    if (config.certificatePins.isNotEmpty()) {
                         certificatePinner(
                             CertificatePinner.Builder().add(
                                 config.apiHost,
@@ -44,6 +45,12 @@ internal actual fun createHttpClient(
                             .Builder(androidContext)
                             .build()
                     )
+
+                    val flipperInterceptor = FlipperInterceptorFactory.createInterceptor(androidContext)
+                    flipperInterceptor?.let {
+                        addNetworkInterceptor(it)
+                    }
+
                 }
             }
             dispatcher = Dispatchers.IO // Replace threadsCount

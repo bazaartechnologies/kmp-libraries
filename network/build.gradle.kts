@@ -2,9 +2,9 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.kotlin.multiplatform)
+    alias(mycatalog.plugins.android.library)
+    alias(mycatalog.plugins.kotlin.serialization)
+    alias(mycatalog.plugins.kotlin.multiplatform)
     id("maven-publish")
 }
 
@@ -20,8 +20,12 @@ kotlin {
         }
 
         dependencies {
-            debugImplementation(libs.chucker.debug)
-            releaseImplementation(libs.chucker.release)
+            debugImplementation(mycatalog.chucker.debug)
+            debugImplementation(mycatalog.flipper)
+            debugImplementation(mycatalog.flippernetworkplugin)
+            debugImplementation(mycatalog.soLoader)
+            releaseImplementation(mycatalog.chucker.release)
+            releaseImplementation(mycatalog.flipper.noop)
         }
     }
 
@@ -31,27 +35,27 @@ kotlin {
 
     sourceSets {
         androidMain.dependencies {
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.certificate.transparency)
+            implementation(mycatalog.ktor.client.okhttp)
+            implementation(mycatalog.certificate.transparency)
         }
 
         iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
+            implementation(mycatalog.ktor.client.darwin)
         }
 
         commonMain.dependencies {
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.client.auth)
-            implementation(libs.ktor.client.logging)
-            implementation(libs.ktor.client.call.id)
-            implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.connectivity.device)
-            implementation(libs.ktor.client.mock)
+            implementation(mycatalog.ktor.client.core)
+            implementation(mycatalog.ktor.client.content.negotiation)
+            implementation(mycatalog.ktor.client.auth)
+            implementation(mycatalog.ktor.client.logging)
+            implementation(mycatalog.ktor.client.call.id)
+            implementation(mycatalog.ktor.serialization.kotlinx.json)
+            implementation(mycatalog.connectivity.device)
+            implementation(mycatalog.ktor.client.mock)
         }
 
         commonTest.dependencies {
-            implementation(libs.kotlin.test)
+            implementation(mycatalog.kotlin.test)
         }
 
         // Required by KMM-ViewModel

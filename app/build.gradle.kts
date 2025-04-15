@@ -2,12 +2,12 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.compose.multiplatform)
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.native.couroutine)
+    alias(mycatalog.plugins.kotlin.multiplatform)
+    alias(mycatalog.plugins.android.application)
+    alias(mycatalog.plugins.compose.multiplatform)
+    alias(mycatalog.plugins.compose.compiler)
+    alias(mycatalog.plugins.kotlin.serialization)
+    alias(mycatalog.plugins.native.couroutine)
 }
 
 kotlin {
@@ -37,12 +37,12 @@ kotlin {
 
     sourceSets {
         androidMain.dependencies {
-            implementation(libs.androidx.compose.ui.tooling.preview)
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.ktor.client.okhttp)
+            implementation(mycatalog.androidx.compose.ui.tooling.preview)
+            implementation(mycatalog.androidx.activity.compose)
+            implementation(mycatalog.ktor.client.okhttp)
         }
         iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
+            implementation(mycatalog.ktor.client.darwin)
         }
         commonMain.dependencies {
             implementation(project(":network"))
@@ -53,25 +53,25 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(mycatalog.ktor.client.core)
+            implementation(mycatalog.ktor.client.content.negotiation)
+            implementation(mycatalog.ktor.serialization.kotlinx.json)
 
-            implementation(libs.coil.compose)
-            implementation(libs.coil.network.ktor)
-            implementation(libs.koin.core)
-            implementation(libs.koin.compose.viewmodel)
-            implementation(libs.navigation.compose)
-            implementation(libs.shared.viewmodel)
+            implementation(mycatalog.coil.compose)
+            implementation(mycatalog.coil.network.ktor)
+            implementation(mycatalog.koin.core)
+            implementation(mycatalog.koin.compose.viewmodel)
+            implementation(mycatalog.navigation.compose)
+            implementation(mycatalog.shared.viewmodel)
 
         }
     }
 }
 
 dependencies {
-    implementation(libs.appcompat)
-    implementation(libs.androidx.core)
-    debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation(mycatalog.appcompat)
+    implementation(mycatalog.androidx.core)
+    debugImplementation(mycatalog.androidx.compose.ui.tooling)
 }
 
 android {
