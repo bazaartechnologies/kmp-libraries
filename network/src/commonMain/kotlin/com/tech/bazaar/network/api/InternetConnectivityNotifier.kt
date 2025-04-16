@@ -1,8 +1,11 @@
 package com.tech.bazaar.network.api
 
 import dev.jordond.connectivity.Connectivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
 interface InternetConnectivityNotifier {
@@ -19,6 +22,7 @@ class DefaultInternetConnectivityNotifier private constructor(
 ) : InternetConnectivityNotifier {
     override val statusUpdates = connectivity.statusUpdates
         .map { it.toInternetConnectivityStatus() }
+        .flowOn(Dispatchers.IO)
 
     override suspend fun getCurrentStatus(): InternetConnectivityStatus {
         return connectivity.status().toInternetConnectivityStatus()
