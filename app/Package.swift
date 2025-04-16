@@ -12,7 +12,7 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "KmpAppCommon",
-            path: "./build/XCFrameworks/debug/KmpApp.xcframework"
+            path: "./build/XCFrameworks/debug/KmpAppCommon.xcframework"
         )
     ]
 )

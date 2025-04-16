@@ -10,6 +10,9 @@
 		058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557BA273AAA24004C7B11 /* Assets.xcassets */; };
 		058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */; };
 		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
+		53AF11582DAFC7AA00F4FCAC /* Network in Frameworks */ = {isa = PBXBuildFile; productRef = 53AF11572DAFC7AA00F4FCAC /* Network */; };
+		53AF115B2DAFC92200F4FCAC /* KmpAppCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 53AF115A2DAFC92200F4FCAC /* KmpAppCommon */; };
+		53AF115E2DAFC96A00F4FCAC /* Network in Frameworks */ = {isa = PBXBuildFile; productRef = 53AF115D2DAFC96A00F4FCAC /* Network */; };
 		5C72DD0B2D49310C008C4165 /* KmpAppCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 5C72DD0A2D49310C008C4165 /* KmpAppCommon */; };
 /* End PBXBuildFile section */
 
@@ -29,7 +32,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				53AF115B2DAFC92200F4FCAC /* KmpAppCommon in Frameworks */,
+				53AF115E2DAFC96A00F4FCAC /* Network in Frameworks */,
 				5C72DD0B2D49310C008C4165 /* KmpAppCommon in Frameworks */,
+				53AF11582DAFC7AA00F4FCAC /* Network in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,7 +142,8 @@
 			);
 			mainGroup = 7555FF72242A565900829871;
 			packageReferences = (
-				5C72DD092D49310C008C4165 /* XCLocalSwiftPackageReference "../app" */,
+				53AF11592DAFC92200F4FCAC /* XCLocalSwiftPackageReference "../app" */,
+				53AF115C2DAFC96A00F4FCAC /* XCLocalSwiftPackageReference "../network" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7555FF7C242A565900829871 /* Products */;
@@ -437,13 +444,29 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		5C72DD092D49310C008C4165 /* XCLocalSwiftPackageReference "../app" */ = {
+		53AF11592DAFC92200F4FCAC /* XCLocalSwiftPackageReference "../app" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../app;
+		};
+		53AF115C2DAFC96A00F4FCAC /* XCLocalSwiftPackageReference "../network" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../network;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		53AF11572DAFC7AA00F4FCAC /* Network */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Network;
+		};
+		53AF115A2DAFC92200F4FCAC /* KmpAppCommon */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = KmpAppCommon;
+		};
+		53AF115D2DAFC96A00F4FCAC /* Network */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Network;
+		};
 		5C72DD0A2D49310C008C4165 /* KmpAppCommon */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = KmpAppCommon;

@@ -39,11 +39,17 @@ internal actual fun createHttpClient(
                     }
                 }
                 if (config.enableDebugMode && androidContext != null) {
+
                     addInterceptor(
                         ChuckerInterceptor
                             .Builder(androidContext)
                             .build()
                     )
+
+                    val flipperInterceptor = FlipperInterceptorFactory.createInterceptor(androidContext)
+                    flipperInterceptor?.let {
+                        addNetworkInterceptor(it)
+                    }
                 }
             }
             dispatcher = Dispatchers.IO // Replace threadsCount

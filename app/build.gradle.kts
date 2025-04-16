@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
@@ -31,6 +32,8 @@ kotlin {
             isStatic = true
             freeCompilerArgs += listOf("-g")
             debuggable = true
+            @OptIn(ExperimentalKotlinGradlePluginApi::class)
+            transitiveExport = true
             xcFramework.add(this)
         }
     }

@@ -1,6 +1,6 @@
 import SwiftUI
 import UIKit
-import KmpApp
+import KmpAppCommon
 
 @main
 struct iOSApp: App {
@@ -14,7 +14,7 @@ struct iOSApp: App {
 
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
-        KmpApp.MainViewControllerKt.MainViewController()
+        KmpAppCommon.MainViewControllerKt.MainViewController()
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
