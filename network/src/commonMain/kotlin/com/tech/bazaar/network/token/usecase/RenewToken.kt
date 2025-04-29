@@ -7,6 +7,7 @@ import com.tech.bazaar.network.api.exception.SessionHasExpiredException
 import com.tech.bazaar.network.event.EventsNames
 import com.tech.bazaar.network.event.NetworkEventLogger
 import io.ktor.client.plugins.auth.providers.BearerTokens
+import kotlin.time.Duration.Companion.seconds
 
 internal class RenewToken(
     private val sessionManager: SessionManager,
@@ -21,7 +22,7 @@ internal class RenewToken(
             networkEventLogger.logEvent(
                 eventName = EventsNames.EVENT_ACCESS_TOKEN_RENEWAL_REQUESTED
             )
-            val tokens = sessionManager.renewTokens()
+            val tokens = sessionManager.renewTokens(offset = 0.seconds)
             networkEventLogger.logEvent(
                 eventName = EventsNames.EVENT_ACCESS_TOKEN_RENEWED
             )

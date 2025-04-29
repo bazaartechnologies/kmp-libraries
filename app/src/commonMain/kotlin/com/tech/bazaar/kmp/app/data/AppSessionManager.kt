@@ -12,6 +12,7 @@ import com.tech.bazaar.network.api.exception.TokenHasExpiredException
 import com.tech.bazaar.network.api.model.SessionTokens
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.time.Duration
 
 class AppSessionManager(
     private val sessionStorage: SessionStorage,
@@ -33,7 +34,7 @@ class AppSessionManager(
         )
     }
 
-    override suspend fun renewTokens(): SessionTokens {
+    override suspend fun renewTokens(offset: Duration): SessionTokens {
         mutex.withLock {
             return renew()
         }
