@@ -11,6 +11,7 @@ import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.Dispatchers
 import okhttp3.CertificatePinner
 import okhttp3.Interceptor
+import javax.net.ssl.SSLPeerUnverifiedException
 
 internal actual fun createHttpClient(
     config: NetworkClientBuilder.ClientConfig,
@@ -36,8 +37,18 @@ internal actual fun createHttpClient(
                                 *config.certificatePins.toTypedArray()
                             ).build()
                         )
+
+                        addInterceptor { chain ->
+                            try {
+                                chain.proceed(chain.request())
+                            } catch (e: SSLPeerUnverifiedException) {
+                                println("Server's SSL certificate cannot be trusted")
+                                throw SSLPeerUnverifiedException("Cannot trust this server")
+                            }
+                        }
                     }
                 }
+
                 if (config.enableDebugMode && androidContext != null) {
 
                     addInterceptor(
