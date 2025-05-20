@@ -97,6 +97,10 @@ internal fun buildClient(
             }
         }
 
+        install(AppendHeaders) {
+            put(key = "Platform", value = appConfig.osName)
+        }
+
         defaultRequest {
             url(urlString = clientConfig.apiUrl)
         }
